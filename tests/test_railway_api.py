@@ -75,6 +75,15 @@ def test_health_and_root(isolated_client: TestClient):
     assert r_root.status_code == 200
     assert "Antigravity Options AI" in r_root.text
     assert "apiFetch" in r_root.text
+    assert "modal-api-auth" in r_root.text
+    assert "modal-close-order" in r_root.text
+    assert "modal-execute-rec" in r_root.text
+    assert "view-research" in r_root.text
+    assert "/api/market/" in r_root.text
+    assert "/api/scan/jobs" in r_root.text
+    assert "/api/notifications/test" in r_root.text
+    assert "window.prompt" not in r_root.text
+    assert "API_AUTH_REQUIRED = false;" in r_root.text
 
 
 def test_api_key_and_cron_auth(tmp_path, monkeypatch):
@@ -90,7 +99,9 @@ def test_api_key_and_cron_auth(tmp_path, monkeypatch):
     with TestClient(app) as client:
         # Public routes stay open
         assert client.get("/health").status_code == 200
-        assert client.get("/").status_code == 200
+        r_auth_root = client.get("/")
+        assert r_auth_root.status_code == 200
+        assert "API_AUTH_REQUIRED = true;" in r_auth_root.text
 
         # Protected API routes reject missing/wrong key
         assert client.get("/api/stats").status_code == 401

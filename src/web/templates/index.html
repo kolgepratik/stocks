@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Antigravity Options AI — Portfolio & Advisory Terminal</title>
+  <title>Antigravity Options AI — Portfolio &amp; Advisory Terminal</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- FontAwesome / Lucide icons -->
+  <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script>
     tailwind.config = {
@@ -32,7 +32,6 @@
     }
   </script>
   <style>
-    /* Custom scrollbars */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: #0f172a; }
     ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
@@ -41,25 +40,32 @@
 </head>
 <body class="bg-dark-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-brand-500 selection:text-white">
 
+  <!-- Toast Container -->
+  <div id="toast-container" class="fixed bottom-4 right-4 z-[60] flex flex-col gap-2 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
+
   <!-- Top Navigation Header -->
   <header class="bg-dark-900 border-b border-slate-800 sticky top-0 z-40 backdrop-blur bg-opacity-90">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-      <div class="flex items-center space-x-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center shadow-lg shadow-emerald-500/20 text-white font-bold text-xl">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
+      <div class="flex items-center space-x-3 min-w-0">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center shadow-lg shadow-emerald-500/20 text-white font-bold text-xl flex-shrink-0">
           <i class="fa-solid fa-chart-line"></i>
         </div>
-        <div>
+        <div class="min-w-0">
           <div class="flex items-center space-x-2">
-            <h1 class="text-lg font-bold text-white tracking-tight">Antigravity Options AI</h1>
-            <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">Haiku 5.5 Active</span>
+            <h1 class="text-base sm:text-lg font-bold text-white tracking-tight truncate">Antigravity Options AI</h1>
+            <span id="header-model-pill" class="hidden sm:inline-flex px-2 py-0.5 text-[11px] font-semibold rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">Active</span>
+            <span id="header-health-pill" class="hidden md:inline-flex items-center space-x-1.5 px-2 py-0.5 text-[10px] font-semibold rounded-full bg-slate-800 text-slate-300 border border-slate-700">
+              <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+              <span>Checking DB...</span>
+            </span>
           </div>
-          <p class="text-xs text-slate-400">Institutional Options Advisory & Placed Order Tracking</p>
+          <p class="text-[11px] text-slate-400 truncate">Systematic Options Advisory, Market Research &amp; Execution Terminal</p>
         </div>
       </div>
 
-      <!-- Quick Action Stats & Status -->
-      <div class="flex items-center space-x-4">
-        <div class="hidden md:flex items-center space-x-6 text-xs text-slate-300">
+      <!-- Quick Action Stats & Controls -->
+      <div class="flex items-center space-x-3 flex-shrink-0">
+        <div class="hidden lg:flex items-center space-x-5 text-xs text-slate-300">
           <div>
             <span class="text-slate-500 block text-[10px] uppercase font-bold tracking-wider">Weekly Budget</span>
             <span class="font-semibold text-emerald-400" id="header-budget">$500.00</span>
@@ -70,35 +76,45 @@
           </div>
           <div>
             <span class="text-slate-500 block text-[10px] uppercase font-bold tracking-wider">Engine Model</span>
-            <span class="font-mono text-slate-300">claude-haiku-5-5</span>
+            <span class="font-mono text-slate-300" id="header-model-name">claude-haiku-5-5</span>
           </div>
         </div>
 
+        <button onclick="openAuthModal()" id="header-auth-btn" title="Configure API Key" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-medium transition flex items-center space-x-1.5">
+          <i class="fa-solid fa-key text-slate-400"></i>
+          <span class="hidden sm:inline" id="header-auth-label">API Auth</span>
+        </button>
+
         <button onclick="openGenerateModal()" class="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-xs shadow-md shadow-emerald-600/30 transition flex items-center space-x-2">
           <i class="fa-solid fa-bolt"></i>
-          <span>Generate Recommendations</span>
+          <span class="hidden sm:inline">Generate Scan</span>
+          <span class="sm:hidden">Scan</span>
         </button>
       </div>
     </div>
 
     <!-- Navigation Tabs Bar -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-slate-800/60 flex space-x-1 sm:space-x-4 text-sm font-medium">
-      <button onclick="switchTab('chat')" id="tab-btn-chat" class="tab-btn px-4 py-2.5 text-emerald-400 border-b-2 border-emerald-500 flex items-center space-x-2">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-slate-800/60 flex space-x-1 sm:space-x-4 text-xs sm:text-sm font-medium overflow-x-auto">
+      <button onclick="switchTab('chat')" id="tab-btn-chat" class="tab-btn whitespace-nowrap px-3 sm:px-4 py-2.5 text-emerald-400 border-b-2 border-emerald-500 flex items-center space-x-2">
         <i class="fa-solid fa-comment-dots"></i>
-        <span>Agent Prompt & Chat</span>
+        <span>Agent Prompt &amp; Chat</span>
       </button>
-      <button onclick="switchTab('orders')" id="tab-btn-orders" class="tab-btn px-4 py-2.5 text-slate-400 hover:text-slate-200 border-b-2 border-transparent flex items-center space-x-2">
+      <button onclick="switchTab('orders')" id="tab-btn-orders" class="tab-btn whitespace-nowrap px-3 sm:px-4 py-2.5 text-slate-400 hover:text-slate-200 border-b-2 border-transparent flex items-center space-x-2">
         <i class="fa-solid fa-briefcase"></i>
-        <span>Placed Orders & PnL</span>
-        <span id="badge-tracked-count" class="ml-1.5 px-1.5 py-0.2 text-[10px] rounded-full bg-slate-800 text-slate-300">0</span>
+        <span>Placed Orders &amp; PnL</span>
+        <span id="badge-tracked-count" class="ml-1 px-1.5 py-0.2 text-[10px] rounded-full bg-slate-800 text-slate-300">0</span>
       </button>
-      <button onclick="switchTab('recommendations')" id="tab-btn-recommendations" class="tab-btn px-4 py-2.5 text-slate-400 hover:text-slate-200 border-b-2 border-transparent flex items-center space-x-2">
+      <button onclick="switchTab('recommendations')" id="tab-btn-recommendations" class="tab-btn whitespace-nowrap px-3 sm:px-4 py-2.5 text-slate-400 hover:text-slate-200 border-b-2 border-transparent flex items-center space-x-2">
         <i class="fa-solid fa-lightbulb"></i>
-        <span>Past Recommendations</span>
+        <span>Recommendations &amp; Scans</span>
       </button>
-      <button onclick="switchTab('settings')" id="tab-btn-settings" class="tab-btn px-4 py-2.5 text-slate-400 hover:text-slate-200 border-b-2 border-transparent flex items-center space-x-2">
+      <button onclick="switchTab('research')" id="tab-btn-research" class="tab-btn whitespace-nowrap px-3 sm:px-4 py-2.5 text-slate-400 hover:text-slate-200 border-b-2 border-transparent flex items-center space-x-2">
+        <i class="fa-solid fa-magnifying-glass-chart"></i>
+        <span>Market Research</span>
+      </button>
+      <button onclick="switchTab('settings')" id="tab-btn-settings" class="tab-btn whitespace-nowrap px-3 sm:px-4 py-2.5 text-slate-400 hover:text-slate-200 border-b-2 border-transparent flex items-center space-x-2">
         <i class="fa-solid fa-sliders"></i>
-        <span>App Settings</span>
+        <span>Settings &amp; Alerts</span>
       </button>
     </div>
   </header>
@@ -111,13 +127,13 @@
       <div class="bg-dark-900 border border-slate-800 rounded-xl p-3.5">
         <span class="text-xs text-slate-400 font-medium">Weekly Budget</span>
         <div class="text-lg font-bold text-white mt-1" id="stat-budget">$500.00</div>
-        <span class="text-[10px] text-slate-500">Max per trade: $500</span>
+        <span class="text-[10px] text-slate-500" id="stat-max-trade">Max per trade: $500</span>
       </div>
 
       <div class="bg-dark-900 border border-slate-800 rounded-xl p-3.5">
         <span class="text-xs text-slate-400 font-medium">Tracked Orders</span>
         <div class="text-lg font-bold text-emerald-400 mt-1" id="stat-tracked-orders">0</div>
-        <span class="text-[10px] text-slate-500">Active monitoring</span>
+        <span class="text-[10px] text-slate-500" id="stat-invested-tracked">Invested: $0.00</span>
       </div>
 
       <div class="bg-dark-900 border border-slate-800 rounded-xl p-3.5">
@@ -129,7 +145,7 @@
       <div class="bg-dark-900 border border-slate-800 rounded-xl p-3.5">
         <span class="text-xs text-slate-400 font-medium">Open PnL ($)</span>
         <div class="text-lg font-bold text-slate-100 mt-1" id="stat-unrealized-pnl">$0.00</div>
-        <span class="text-[10px] text-slate-500" id="stat-unrealized-pnl-pct">0.0% return</span>
+        <span class="text-[10px] text-slate-500" id="stat-portfolio-value">Value: $0.00</span>
       </div>
 
       <div class="bg-dark-900 border border-slate-800 rounded-xl p-3.5">
@@ -141,7 +157,7 @@
       <div class="bg-dark-900 border border-slate-800 rounded-xl p-3.5">
         <span class="text-xs text-slate-400 font-medium">Recommendations</span>
         <div class="text-lg font-bold text-white mt-1" id="stat-recs-count">0</div>
-        <span class="text-[10px] text-slate-500">Generated to date</span>
+        <span class="text-[10px] text-slate-500" id="stat-db-dialect">DB: connecting</span>
       </div>
     </section>
 
@@ -149,16 +165,15 @@
          TAB 1: AGENT PROMPT & CHAT
          ──────────────────────────────────────────────────────────────────────── -->
     <section id="view-chat" class="tab-view block space-y-4">
-      <div class="bg-dark-900 border border-slate-800 rounded-2xl shadow-xl flex flex-col h-[680px]">
-        <!-- Chat Header -->
+      <div class="bg-dark-900 border border-slate-800 rounded-2xl shadow-xl flex flex-col h-[660px]">
         <div class="px-6 py-4 border-b border-slate-800 flex items-center justify-between">
           <div class="flex items-center space-x-3">
             <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
               <i class="fa-solid fa-robot"></i>
             </div>
             <div>
-              <h2 class="text-sm font-semibold text-white">Advisory & Portfolio Assistant</h2>
-              <p class="text-xs text-slate-400">Prompt to monitor positions, record orders, update PnL, or run scans</p>
+              <h2 class="text-sm font-semibold text-white">Advisory &amp; Portfolio Assistant</h2>
+              <p class="text-xs text-slate-400">Prompt to monitor positions, record orders, update PnL, or trigger scans</p>
             </div>
           </div>
           <div class="flex items-center space-x-2">
@@ -168,28 +183,25 @@
           </div>
         </div>
 
-        <!-- Chat Stream -->
         <div id="chat-messages" class="flex-1 overflow-y-auto p-6 space-y-4">
-          <!-- Welcome message -->
           <div class="flex items-start space-x-3">
             <div class="w-8 h-8 rounded-full bg-emerald-600 flex items-center justify-center text-white text-xs flex-shrink-0">
               <i class="fa-solid fa-sparkles"></i>
             </div>
             <div class="bg-dark-800 border border-slate-700/60 rounded-2xl p-4 max-w-2xl text-sm leading-relaxed text-slate-200">
               <p class="font-semibold text-white mb-1">Hello! I am your systematic Options AI co-pilot.</p>
-              <p class="mb-2">I am running natively on <strong>Claude Haiku 5.5</strong>. You can prompt me here to:</p>
+              <p class="mb-2">You can prompt me here or use the tabs above for direct controls:</p>
               <ul class="list-disc pl-5 space-y-1 text-slate-300 text-xs">
-                <li><strong>Tell me orders you placed:</strong> <em>"I just placed an order for XOM 165 call at $3.40 (1 contract)"</em></li>
+                <li><strong>Record placed orders:</strong> <em>"I just placed an order for XOM 165 call at $3.40 (1 contract)"</em></li>
                 <li><strong>Monitor active orders:</strong> <em>"Monitor my placed orders and check profit targets"</em></li>
                 <li><strong>Update PnL:</strong> <em>"Update PnL for XOM to $85.00"</em> or <em>"Update live PnL for all orders"</em></li>
-                <li><strong>Change tracking states:</strong> <em>"Mark OKLO order as untracked"</em> or <em>"Mark order #1 as tracked"</em></li>
+                <li><strong>Toggle tracking states:</strong> <em>"Mark OKLO order as untracked"</em> or <em>"Mark order #1 as tracked"</em></li>
                 <li><strong>Run options scans:</strong> <em>"Run a scan for NVDA, OKLO, XOM with budget $500"</em></li>
               </ul>
             </div>
           </div>
         </div>
 
-        <!-- Suggestion Chips -->
         <div class="px-6 py-2 border-t border-slate-800/60 flex flex-wrap gap-2 text-xs">
           <button onclick="sendQuickPrompt('Monitor my placed orders please')" class="px-3 py-1 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 transition">
             <i class="fa-solid fa-tower-broadcast text-emerald-400 mr-1"></i> Monitor My Orders
@@ -205,7 +217,6 @@
           </button>
         </div>
 
-        <!-- Chat Input Form -->
         <div class="p-4 border-t border-slate-800 bg-dark-950/40">
           <form id="chat-form" onsubmit="handleChatSubmit(event)" class="flex space-x-3">
             <input
@@ -232,38 +243,44 @@
          TAB 2: PLACED ORDERS & LIVE MONITORING
          ──────────────────────────────────────────────────────────────────────── -->
     <section id="view-orders" class="tab-view hidden space-y-6">
-      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
         <div>
           <h2 class="text-lg font-bold text-white">Placed Orders Portfolio</h2>
-          <p class="text-xs text-slate-400">Track performance over time, toggle TRACKED/UNTRACKED states, and update PnL.</p>
+          <p class="text-xs text-slate-400">Filter open/closed positions, toggle TRACKED/UNTRACKED states, update PnL, and run live chain monitoring.</p>
         </div>
 
-        <!-- Filter Controls -->
-        <div class="flex flex-wrap items-center gap-3">
-          <!-- Timeframe Pills -->
+        <div class="flex flex-wrap items-center gap-2.5">
           <div class="inline-flex rounded-lg bg-dark-900 border border-slate-800 p-1 text-xs">
-            <button onclick="setOrdersTimeframe('7d')" class="timeframe-btn-orders px-2.5 py-1 rounded-md text-slate-300 hover:text-white" data-tf="7d">7 Days</button>
-            <button onclick="setOrdersTimeframe('14d')" class="timeframe-btn-orders px-2.5 py-1 rounded-md text-slate-300 hover:text-white" data-tf="14d">14 Days</button>
-            <button onclick="setOrdersTimeframe('1m')" class="timeframe-btn-orders px-2.5 py-1 rounded-md text-slate-300 hover:text-white" data-tf="1m">1 Month</button>
+            <button onclick="setOrdersTimeframe('7d')" class="timeframe-btn-orders px-2.5 py-1 rounded-md text-slate-300 hover:text-white" data-tf="7d">7D</button>
+            <button onclick="setOrdersTimeframe('14d')" class="timeframe-btn-orders px-2.5 py-1 rounded-md text-slate-300 hover:text-white" data-tf="14d">14D</button>
+            <button onclick="setOrdersTimeframe('1m')" class="timeframe-btn-orders px-2.5 py-1 rounded-md text-slate-300 hover:text-white" data-tf="1m">1M</button>
             <button onclick="setOrdersTimeframe('1q')" class="timeframe-btn-orders px-2.5 py-1 rounded-md text-slate-300 hover:text-white" data-tf="1q">Quarter</button>
             <button onclick="setOrdersTimeframe('1y')" class="timeframe-btn-orders px-2.5 py-1 rounded-md text-slate-300 hover:text-white" data-tf="1y">Year</button>
             <button onclick="setOrdersTimeframe('all')" class="timeframe-btn-orders px-2.5 py-1 rounded-md bg-emerald-600 text-white font-medium" data-tf="all">All</button>
           </div>
 
-          <!-- Tracking Filter -->
-          <select id="filter-order-tracking" onchange="loadPlacedOrders()" class="bg-dark-900 border border-slate-800 text-xs text-slate-300 rounded-lg px-3 py-1.5 focus:outline-none">
-            <option value="ALL">All States</option>
+          <select id="filter-order-status" onchange="loadPlacedOrders()" class="bg-dark-900 border border-slate-800 text-xs text-slate-300 rounded-lg px-2.5 py-1.5 focus:outline-none">
+            <option value="ALL" selected>Open &amp; Closed</option>
+            <option value="OPEN">Open Only</option>
+            <option value="CLOSED">Closed Only</option>
+          </select>
+
+          <select id="filter-order-tracking" onchange="loadPlacedOrders()" class="bg-dark-900 border border-slate-800 text-xs text-slate-300 rounded-lg px-2.5 py-1.5 focus:outline-none">
+            <option value="ALL">All Tracking</option>
             <option value="TRACKED" selected>Tracked Only</option>
             <option value="UNTRACKED">Untracked Only</option>
           </select>
 
-          <!-- Action: Monitor Orders Now -->
-          <button onclick="runLiveMonitoring()" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium transition shadow flex items-center space-x-1.5">
+          <label class="flex items-center space-x-1.5 text-[11px] text-slate-300 bg-dark-900 border border-slate-800 rounded-lg px-2.5 py-1.5 cursor-pointer" title="When checked, live monitoring only refreshes TRACKED orders">
+            <input type="checkbox" id="monitor-tracking-only" checked class="rounded bg-dark-800 border-slate-700 text-emerald-500">
+            <span>Tracked only</span>
+          </label>
+
+          <button onclick="runLiveMonitoring()" id="btn-monitor-live" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium transition shadow flex items-center space-x-1.5">
             <i class="fa-solid fa-satellite-dish"></i>
             <span>Monitor Live</span>
           </button>
 
-          <!-- Action: Add Manual Order -->
           <button onclick="openRecordOrderModal()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium transition flex items-center space-x-1.5">
             <i class="fa-solid fa-plus"></i>
             <span>Log Placed Order</span>
@@ -271,16 +288,19 @@
         </div>
       </div>
 
-      <!-- Live Monitoring Alert Banner (if any) -->
+      <!-- Live Monitoring Alert Banner -->
       <div id="monitoring-alerts-banner" class="hidden bg-emerald-950/40 border border-emerald-500/30 rounded-xl p-4 text-sm text-emerald-200 space-y-2">
-        <div class="font-semibold flex items-center space-x-2">
-          <i class="fa-solid fa-bell text-emerald-400"></i>
-          <span id="monitoring-banner-title">Live Monitoring Summary</span>
+        <div class="flex items-center justify-between">
+          <div class="font-semibold flex items-center space-x-2">
+            <i class="fa-solid fa-bell text-emerald-400"></i>
+            <span id="monitoring-banner-title">Live Monitoring Summary</span>
+          </div>
+          <button onclick="document.getElementById('monitoring-alerts-banner').classList.add('hidden')" class="text-xs text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
         </div>
-        <div id="monitoring-banner-body" class="text-xs text-emerald-300/80"></div>
+        <div id="monitoring-banner-body" class="text-xs text-emerald-300/90"></div>
       </div>
 
-      <!-- Orders Grouped by Date Container -->
+      <!-- Orders Grouped by Date -->
       <div id="orders-grouped-container" class="space-y-6">
         <div class="text-center py-12 text-slate-500 text-sm">
           <i class="fa-solid fa-spinner fa-spin text-lg mb-2 block"></i>
@@ -290,25 +310,32 @@
     </section>
 
     <!-- ────────────────────────────────────────────────────────────────────────
-         TAB 3: PAST RECOMMENDATIONS
+         TAB 3: RECOMMENDATIONS & PIPELINE SCANS
          ──────────────────────────────────────────────────────────────────────── -->
     <section id="view-recommendations" class="tab-view hidden space-y-6">
-      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
         <div>
-          <h2 class="text-lg font-bold text-white">Advisory Recommendations & Generator</h2>
-          <p class="text-xs text-slate-400">Generate fresh on-demand trade ideas via the 3-agent pipeline or review past recommendations grouped by date.</p>
+          <h2 class="text-lg font-bold text-white">Advisory Recommendations &amp; Pipeline History</h2>
+          <p class="text-xs text-slate-400">Approve, reject, or execute AI recommendations (Paper / Alpaca / Robinhood) and inspect past scan jobs.</p>
         </div>
 
-        <div class="flex flex-wrap items-center gap-3">
-          <!-- Timeframe Pills -->
+        <div class="flex flex-wrap items-center gap-2.5">
           <div class="inline-flex rounded-lg bg-dark-900 border border-slate-800 p-1 text-xs">
-            <button onclick="setRecsTimeframe('7d')" class="timeframe-btn-recs px-2.5 py-1 rounded-md text-slate-300 hover:text-white" data-tf="7d">Last 7 Days</button>
-            <button onclick="setRecsTimeframe('14d')" class="timeframe-btn-recs px-2.5 py-1 rounded-md text-slate-300 hover:text-white" data-tf="14d">Last 14 Days</button>
-            <button onclick="setRecsTimeframe('1m')" class="timeframe-btn-recs px-2.5 py-1 rounded-md text-slate-300 hover:text-white" data-tf="1m">Last Month</button>
-            <button onclick="setRecsTimeframe('1q')" class="timeframe-btn-recs px-2.5 py-1 rounded-md text-slate-300 hover:text-white" data-tf="1q">Last Quarter</button>
-            <button onclick="setRecsTimeframe('1y')" class="timeframe-btn-recs px-2.5 py-1 rounded-md text-slate-300 hover:text-white" data-tf="1y">Last Year</button>
+            <button onclick="setRecsTimeframe('7d')" class="timeframe-btn-recs px-2.5 py-1 rounded-md text-slate-300 hover:text-white" data-tf="7d">7D</button>
+            <button onclick="setRecsTimeframe('14d')" class="timeframe-btn-recs px-2.5 py-1 rounded-md text-slate-300 hover:text-white" data-tf="14d">14D</button>
+            <button onclick="setRecsTimeframe('1m')" class="timeframe-btn-recs px-2.5 py-1 rounded-md text-slate-300 hover:text-white" data-tf="1m">1M</button>
+            <button onclick="setRecsTimeframe('1q')" class="timeframe-btn-recs px-2.5 py-1 rounded-md text-slate-300 hover:text-white" data-tf="1q">Quarter</button>
+            <button onclick="setRecsTimeframe('1y')" class="timeframe-btn-recs px-2.5 py-1 rounded-md text-slate-300 hover:text-white" data-tf="1y">Year</button>
             <button onclick="setRecsTimeframe('all')" class="timeframe-btn-recs px-2.5 py-1 rounded-md bg-emerald-600 text-white font-medium" data-tf="all">All</button>
           </div>
+
+          <select id="filter-recs-status" onchange="loadRecommendations()" class="bg-dark-900 border border-slate-800 text-xs text-slate-300 rounded-lg px-2.5 py-1.5 focus:outline-none">
+            <option value="ALL" selected>All Statuses</option>
+            <option value="PENDING_APPROVAL">Pending Approval</option>
+            <option value="APPROVED">Approved</option>
+            <option value="EXECUTED">Executed</option>
+            <option value="REJECTED">Rejected</option>
+          </select>
 
           <button onclick="openGenerateModal()" class="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition shadow flex items-center space-x-1.5">
             <i class="fa-solid fa-bolt"></i>
@@ -317,7 +344,7 @@
         </div>
       </div>
 
-      <!-- Live On-Demand Pipeline Progress / Result Banner -->
+      <!-- Live On-Demand Pipeline Progress Banner -->
       <div id="scan-progress-banner" class="hidden rounded-2xl p-4 border text-sm space-y-2">
         <div class="flex items-center justify-between">
           <div class="font-semibold flex items-center space-x-2" id="scan-banner-header">
@@ -328,122 +355,357 @@
         </div>
         <p class="text-xs text-slate-300" id="scan-banner-stage"></p>
         <div id="scan-banner-macro" class="hidden text-xs text-slate-300 bg-dark-950/60 border border-slate-800 rounded-xl p-3 mt-2"></div>
+        <div id="scan-banner-catalysts" class="hidden flex flex-wrap gap-1.5 pt-1"></div>
       </div>
 
-      <!-- Recommendations Grouped by Date Container -->
+      <!-- Recommendations Grouped by Date -->
       <div id="recs-grouped-container" class="space-y-6">
         <div class="text-center py-12 text-slate-500 text-sm">
           <i class="fa-solid fa-spinner fa-spin text-lg mb-2 block"></i>
           Loading past recommendations...
         </div>
       </div>
+
+      <!-- Recent Pipeline Scan Jobs -->
+      <div class="bg-dark-900 border border-slate-800 rounded-2xl p-5 space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-sm font-bold text-white flex items-center space-x-2">
+              <i class="fa-solid fa-clock-rotate-left text-emerald-400"></i>
+              <span>Recent Scan Jobs</span>
+            </h3>
+            <p class="text-xs text-slate-400">Audit execution history, timing, macro context, and errors persisted in the database.</p>
+          </div>
+          <button onclick="loadScanJobs()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 transition flex items-center space-x-1.5">
+            <i class="fa-solid fa-rotate"></i>
+            <span>Refresh Jobs</span>
+          </button>
+        </div>
+
+        <div id="scan-jobs-list" class="overflow-x-auto">
+          <p class="text-xs text-slate-500 py-4 text-center">Loading scan job history...</p>
+        </div>
+      </div>
     </section>
 
     <!-- ────────────────────────────────────────────────────────────────────────
-         TAB 4: SETTINGS
+         TAB 4: MARKET RESEARCH & OPTIONS CHAIN
          ──────────────────────────────────────────────────────────────────────── -->
-    <section id="view-settings" class="tab-view hidden space-y-6">
-      <div class="max-w-4xl mx-auto bg-dark-900 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xl">
-        <div class="border-b border-slate-800 pb-4 mb-6">
-          <h2 class="text-lg font-bold text-white">Engine Configuration & Budget Controls</h2>
-          <p class="text-xs text-slate-400 mt-0.5">Customize your risk parameters, LLM model selection, and notification channels. Updates persist to .env and reload instantly.</p>
+    <section id="view-research" class="tab-view hidden space-y-6">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-lg font-bold text-white">Market Research &amp; Options Explorer</h2>
+          <p class="text-xs text-slate-400">Inspect live technical snapshots, option chains with Greeks, and thematic sector research dossiers.</p>
         </div>
+      </div>
 
-        <form id="settings-form" onsubmit="handleSaveSettings(event)" class="space-y-6">
-          <!-- Budget Controls -->
-          <div>
-            <h3 class="text-sm font-semibold text-emerald-400 mb-3 flex items-center space-x-2">
-              <i class="fa-solid fa-shield-halved"></i>
-              <span>Budget & Capital Guardrails</span>
-            </h3>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label class="block text-xs font-medium text-slate-300 mb-1">Weekly Investment Budget ($ USD)</label>
-                <input type="number" step="10" id="set-weekly-budget" class="w-full bg-dark-800 border border-slate-700 rounded-lg px-3.5 py-2 text-sm text-white focus:outline-none focus:border-emerald-500" required>
-                <span class="text-[10px] text-slate-500">Ceiling for recommendations and single trade cap</span>
-              </div>
-              <div>
-                <label class="block text-xs font-medium text-slate-300 mb-1">Max Cost Per Single Trade ($ USD)</label>
-                <input type="number" step="10" id="set-max-trade-cost" class="w-full bg-dark-800 border border-slate-700 rounded-lg px-3.5 py-2 text-sm text-white focus:outline-none focus:border-emerald-500" required>
-                <span class="text-[10px] text-slate-500">Matched to weekly budget ($500)</span>
-              </div>
-              <div>
-                <label class="block text-xs font-medium text-slate-300 mb-1">Target Profit (% Gain)</label>
-                <input type="number" step="5" id="set-target-gain" class="w-full bg-dark-800 border border-slate-700 rounded-lg px-3.5 py-2 text-sm text-white focus:outline-none focus:border-emerald-500" required>
-                <span class="text-[10px] text-slate-500">Default 50% for steady income</span>
-              </div>
-              <div>
-                <label class="block text-xs font-medium text-slate-300 mb-1">Stop Loss (% Loss Limit)</label>
-                <input type="number" step="5" id="set-stop-loss" class="w-full bg-dark-800 border border-slate-700 rounded-lg px-3.5 py-2 text-sm text-white focus:outline-none focus:border-emerald-500" required>
-                <span class="text-[10px] text-slate-500">Strict capital protection cut (20-25%)</span>
-              </div>
-            </div>
+      <!-- Single Symbol Quote + Option Chain Explorer -->
+      <div class="bg-dark-900 border border-slate-800 rounded-2xl p-5 space-y-5 shadow-lg">
+        <form onsubmit="handleMarketLookup(event)" class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end text-xs">
+          <div class="md:col-span-3">
+            <label class="block text-slate-300 font-medium mb-1">Ticker Symbol</label>
+            <input type="text" id="research-symbol-input" value="NVDA" placeholder="e.g. NVDA" class="w-full bg-dark-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-bold uppercase focus:outline-none focus:border-emerald-500" required>
           </div>
-
-          <!-- Model & API Keys -->
-          <div class="pt-4 border-t border-slate-800">
-            <h3 class="text-sm font-semibold text-emerald-400 mb-3 flex items-center space-x-2">
-              <i class="fa-solid fa-microchip"></i>
-              <span>Language Model & Reasoning Engines</span>
-            </h3>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label class="block text-xs font-medium text-slate-300 mb-1">Active LLM Provider</label>
-                <select id="set-llm-provider" class="w-full bg-dark-800 border border-slate-700 rounded-lg px-3.5 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
-                  <option value="anthropic">Anthropic (Claude)</option>
-                  <option value="gemini">Google Gemini</option>
-                </select>
-              </div>
-              <div>
-                <label class="block text-xs font-medium text-slate-300 mb-1">Claude Model Name</label>
-                <input type="text" id="set-anthropic-model" class="w-full bg-dark-800 border border-slate-700 rounded-lg px-3.5 py-2 text-sm text-white focus:outline-none focus:border-emerald-500" value="claude-haiku-5-5">
-                <span class="text-[10px] text-slate-500">claude-haiku-5-5 (Primary) | claude-3-5-sonnet-latest</span>
-              </div>
-              <div class="sm:col-span-2">
-                <label class="block text-xs font-medium text-slate-300 mb-1">Anthropic API Key</label>
-                <input type="password" id="set-anthropic-key" placeholder="Keep empty to leave existing key unchanged" class="w-full bg-dark-800 border border-slate-700 rounded-lg px-3.5 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
-                <span class="text-[10px] text-slate-500" id="label-anthropic-status">Status: Configured</span>
-              </div>
-            </div>
+          <div class="md:col-span-2">
+            <label class="block text-slate-300 font-medium mb-1">Quote Period</label>
+            <select id="research-period-input" class="w-full bg-dark-800 border border-slate-700 rounded-lg px-3 py-2 text-white">
+              <option value="3mo">3 Months</option>
+              <option value="6mo">6 Months</option>
+              <option value="1y" selected>1 Year</option>
+            </select>
           </div>
-
-          <!-- Notification Channel & Universe -->
-          <div class="pt-4 border-t border-slate-800">
-            <h3 class="text-sm font-semibold text-emerald-400 mb-3 flex items-center space-x-2">
-              <i class="fa-solid fa-bell"></i>
-              <span>Notifications & Screening Universe</span>
-            </h3>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label class="block text-xs font-medium text-slate-300 mb-1">Notification Channel</label>
-                <select id="set-notification-channel" class="w-full bg-dark-800 border border-slate-700 rounded-lg px-3.5 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
-                  <option value="WHATSAPP">WhatsApp (CallMeBot)</option>
-                  <option value="TELEGRAM">Telegram Bot</option>
-                  <option value="BOTH">Both Channels</option>
-                  <option value="NONE">None (Web / CLI Only)</option>
-                </select>
-              </div>
-              <div class="sm:col-span-2">
-                <label class="block text-xs font-medium text-slate-300 mb-1">Screening Universe Tickers</label>
-                <textarea id="set-scan-universe" rows="2" class="w-full bg-dark-800 border border-slate-700 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 font-mono"></textarea>
-                <span class="text-[10px] text-slate-500">Comma-separated ticker list</span>
-              </div>
-            </div>
+          <div class="md:col-span-2">
+            <label class="block text-slate-300 font-medium mb-1">Target DTE</label>
+            <input type="number" id="research-dte-input" value="7" min="0" max="365" class="w-full bg-dark-800 border border-slate-700 rounded-lg px-3 py-2 text-white">
           </div>
-
-          <!-- Submit Button -->
-          <div class="pt-4 flex items-center justify-end space-x-3">
-            <span id="settings-save-status" class="text-xs text-emerald-400 hidden">
-              <i class="fa-solid fa-circle-check mr-1"></i> Settings saved and active!
-            </span>
-            <button type="submit" class="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold shadow-lg shadow-emerald-600/30 transition">
-              Save & Apply Settings
+          <div class="md:col-span-2">
+            <label class="block text-slate-300 font-medium mb-1">Chain Type</label>
+            <select id="research-option-type" class="w-full bg-dark-800 border border-slate-700 rounded-lg px-3 py-2 text-white">
+              <option value="CALL" selected>CALLS Only</option>
+              <option value="PUT">PUTS Only</option>
+              <option value="ALL">CALLS &amp; PUTS</option>
+            </select>
+          </div>
+          <div class="md:col-span-3 flex space-x-2">
+            <button type="submit" id="btn-fetch-market" class="flex-1 px-3 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold transition flex items-center justify-center space-x-1.5">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <span>Quote &amp; Chain</span>
             </button>
           </div>
         </form>
+
+        <!-- Quick Symbol Chips -->
+        <div class="flex flex-wrap items-center gap-1.5 text-[11px]">
+          <span class="text-slate-500 mr-1">Quick tickers:</span>
+          <button type="button" onclick="quickLookupSymbol('NVDA')" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-mono">NVDA</button>
+          <button type="button" onclick="quickLookupSymbol('OKLO')" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-mono">OKLO</button>
+          <button type="button" onclick="quickLookupSymbol('XOM')" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-mono">XOM</button>
+          <button type="button" onclick="quickLookupSymbol('TSM')" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-mono">TSM</button>
+          <button type="button" onclick="quickLookupSymbol('VST')" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-mono">VST</button>
+          <button type="button" onclick="quickLookupSymbol('SPY')" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-mono">SPY</button>
+          <div class="ml-auto flex items-center space-x-2">
+            <label class="text-slate-500">Exact Exp (optional):</label>
+            <input type="text" id="research-exp-input" placeholder="YYYY-MM-DD" class="w-28 bg-dark-800 border border-slate-700 rounded px-2 py-0.5 text-xs text-white font-mono">
+          </div>
+        </div>
+
+        <!-- Technical Snapshot Output -->
+        <div id="research-quote-container" class="hidden"></div>
+
+        <!-- Option Chain Table Output -->
+        <div id="research-options-container" class="hidden"></div>
+      </div>
+
+      <!-- Thematic Sector Subagent Dossiers -->
+      <div class="bg-dark-900 border border-slate-800 rounded-2xl p-5 space-y-4 shadow-lg">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-800 pb-4">
+          <div>
+            <h3 class="text-sm font-bold text-white flex items-center space-x-2">
+              <i class="fa-solid fa-layer-group text-emerald-400"></i>
+              <span>Thematic Sector Subagent Research</span>
+            </h3>
+            <p class="text-xs text-slate-400">Runs sector subagents over live ETF momentum, news feeds, and technical setups.</p>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-3 text-xs">
+            <label class="flex items-center space-x-1.5 text-slate-300 cursor-pointer">
+              <input type="checkbox" class="sector-check rounded bg-dark-800 border-slate-700 text-emerald-500" value="AI_CHIPS_INFRA" checked>
+              <span>AI &amp; Chips</span>
+            </label>
+            <label class="flex items-center space-x-1.5 text-slate-300 cursor-pointer">
+              <input type="checkbox" class="sector-check rounded bg-dark-800 border-slate-700 text-emerald-500" value="WAR_ENERGY_GAS" checked>
+              <span>Energy &amp; Gas</span>
+            </label>
+            <label class="flex items-center space-x-1.5 text-slate-300 cursor-pointer">
+              <input type="checkbox" class="sector-check rounded bg-dark-800 border-slate-700 text-emerald-500" value="DC_POWER_NUCLEAR" checked>
+              <span>Nuclear SMRs</span>
+            </label>
+            <select id="sector-picks-count" class="bg-dark-800 border border-slate-700 rounded-lg px-2 py-1 text-slate-200">
+              <option value="2" selected>2 picks / sector</option>
+              <option value="3">3 picks / sector</option>
+              <option value="5">5 picks / sector</option>
+            </select>
+            <button onclick="runSectorResearch()" id="btn-run-sectors" class="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold transition flex items-center space-x-1.5">
+              <i class="fa-solid fa-satellite"></i>
+              <span>Run Sector Subagents</span>
+            </button>
+          </div>
+        </div>
+
+        <div id="research-sectors-container" class="text-xs text-slate-400 py-4 text-center">
+          Click <strong>Run Sector Subagents</strong> to fetch 7-day sector ETF strength, news headlines, and top option candidates.
+        </div>
+      </div>
+    </section>
+
+    <!-- ────────────────────────────────────────────────────────────────────────
+         TAB 5: SETTINGS & NOTIFICATIONS TEST
+         ──────────────────────────────────────────────────────────────────────── -->
+    <section id="view-settings" class="tab-view hidden space-y-6">
+      <div class="max-w-4xl mx-auto space-y-6">
+        <div class="bg-dark-900 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xl">
+          <div class="border-b border-slate-800 pb-4 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <h2 class="text-lg font-bold text-white">Engine Configuration &amp; Budget Controls</h2>
+              <p class="text-xs text-slate-400 mt-0.5">Changes persist in the database so settings survive Railway container restarts.</p>
+            </div>
+            <div id="settings-env-badges" class="flex flex-wrap gap-1.5 text-[10px]"></div>
+          </div>
+
+          <form id="settings-form" onsubmit="handleSaveSettings(event)" class="space-y-6">
+            <!-- Budget & Strategy Controls -->
+            <div>
+              <h3 class="text-sm font-semibold text-emerald-400 mb-3 flex items-center space-x-2">
+                <i class="fa-solid fa-shield-halved"></i>
+                <span>Budget, Strategy &amp; Risk Guardrails</span>
+              </h3>
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div>
+                  <label class="block text-xs font-medium text-slate-300 mb-1">Weekly Budget ($ USD)</label>
+                  <input type="number" step="10" id="set-weekly-budget" class="w-full bg-dark-800 border border-slate-700 rounded-lg px-3.5 py-2 text-sm text-white focus:outline-none focus:border-emerald-500" required>
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-slate-300 mb-1">Max Cost Per Trade ($ USD)</label>
+                  <input type="number" step="10" id="set-max-trade-cost" class="w-full bg-dark-800 border border-slate-700 rounded-lg px-3.5 py-2 text-sm text-white focus:outline-none focus:border-emerald-500" required>
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-slate-300 mb-1">Strategy Mode</label>
+                  <select id="set-strategy-mode" class="w-full bg-dark-800 border border-slate-700 rounded-lg px-3.5 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                    <option value="steady">steady</option>
+                    <option value="aggressive">aggressive</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-slate-300 mb-1">Target Profit (% Gain)</label>
+                  <input type="number" step="5" id="set-target-gain" class="w-full bg-dark-800 border border-slate-700 rounded-lg px-3.5 py-2 text-sm text-white focus:outline-none focus:border-emerald-500" required>
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-slate-300 mb-1">Stop Loss (% Loss Limit)</label>
+                  <input type="number" step="5" id="set-stop-loss" class="w-full bg-dark-800 border border-slate-700 rounded-lg px-3.5 py-2 text-sm text-white focus:outline-none focus:border-emerald-500" required>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                  <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Target DTE</label>
+                    <input type="number" min="1" max="180" id="set-target-dte" class="w-full bg-dark-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500" required>
+                  </div>
+                  <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Max Candidates</label>
+                    <input type="number" min="1" max="20" id="set-max-candidates" class="w-full bg-dark-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500" required>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Model & API Keys -->
+            <div class="pt-4 border-t border-slate-800">
+              <h3 class="text-sm font-semibold text-emerald-400 mb-3 flex items-center space-x-2">
+                <i class="fa-solid fa-microchip"></i>
+                <span>Language Model &amp; Reasoning Engines</span>
+              </h3>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label class="block text-xs font-medium text-slate-300 mb-1">Active LLM Provider</label>
+                  <select id="set-llm-provider" class="w-full bg-dark-800 border border-slate-700 rounded-lg px-3.5 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                    <option value="anthropic">Anthropic (Claude)</option>
+                    <option value="gemini">Google Gemini</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-slate-300 mb-1">Claude Model</label>
+                  <input type="text" id="set-anthropic-model" class="w-full bg-dark-800 border border-slate-700 rounded-lg px-3.5 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-slate-300 mb-1">Gemini Model</label>
+                  <input type="text" id="set-gemini-model" class="w-full bg-dark-800 border border-slate-700 rounded-lg px-3.5 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                </div>
+                <div class="sm:col-span-3 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Anthropic API Key</label>
+                    <input type="password" id="set-anthropic-key" placeholder="Leave blank to keep unchanged" class="w-full bg-dark-800 border border-slate-700 rounded-lg px-3.5 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                    <span class="text-[10px] text-slate-500" id="label-anthropic-status">Status: Checking...</span>
+                  </div>
+                  <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Gemini API Key</label>
+                    <input type="password" id="set-gemini-key" placeholder="Leave blank to keep unchanged" class="w-full bg-dark-800 border border-slate-700 rounded-lg px-3.5 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                    <span class="text-[10px] text-slate-500" id="label-gemini-status">Status: Checking...</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Notification Channel & Universe -->
+            <div class="pt-4 border-t border-slate-800">
+              <h3 class="text-sm font-semibold text-emerald-400 mb-3 flex items-center space-x-2">
+                <i class="fa-solid fa-bell"></i>
+                <span>Notifications &amp; Screening Universe</span>
+              </h3>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-medium text-slate-300 mb-1">Default Notification Channel</label>
+                  <select id="set-notification-channel" class="w-full bg-dark-800 border border-slate-700 rounded-lg px-3.5 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                    <option value="WHATSAPP">WhatsApp (CallMeBot)</option>
+                    <option value="TELEGRAM">Telegram Bot</option>
+                    <option value="BOTH">Both Channels</option>
+                    <option value="NONE">None (Web / CLI Only)</option>
+                  </select>
+                </div>
+                <div class="sm:col-span-2">
+                  <label class="block text-xs font-medium text-slate-300 mb-1">Screening Universe Tickers</label>
+                  <textarea id="set-scan-universe" rows="2" class="w-full bg-dark-800 border border-slate-700 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 font-mono"></textarea>
+                  <span class="text-[10px] text-slate-500">Comma-separated default ticker list</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="pt-4 flex items-center justify-end space-x-3">
+              <span id="settings-save-status" class="text-xs text-emerald-400 hidden">
+                <i class="fa-solid fa-circle-check mr-1"></i> Settings saved and active!
+              </span>
+              <button type="submit" class="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold shadow-lg shadow-emerald-600/30 transition">
+                Save &amp; Apply Settings
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Notification Diagnostic Card -->
+        <div class="bg-dark-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div>
+              <h3 class="text-sm font-bold text-white flex items-center space-x-2">
+                <i class="fa-solid fa-paper-plane text-emerald-400"></i>
+                <span>Notification Delivery Test</span>
+              </h3>
+              <p class="text-xs text-slate-400">Send a test message to verify Telegram Bot or WhatsApp credentials on Railway.</p>
+            </div>
+          </div>
+          <form onsubmit="handleTestNotification(event)" class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end text-xs">
+            <div class="sm:col-span-3">
+              <label class="block text-slate-300 font-medium mb-1">Channel Override</label>
+              <select id="test-notif-channel" class="w-full bg-dark-800 border border-slate-700 rounded-lg px-3 py-2 text-white">
+                <option value="">Use Saved Default</option>
+                <option value="TELEGRAM">TELEGRAM</option>
+                <option value="WHATSAPP">WHATSAPP</option>
+                <option value="BOTH">BOTH</option>
+              </select>
+            </div>
+            <div class="sm:col-span-6">
+              <label class="block text-slate-300 font-medium mb-1">Test Message (Optional)</label>
+              <input type="text" id="test-notif-message" placeholder="Antigravity Options AI: cloud notification test OK" class="w-full bg-dark-800 border border-slate-700 rounded-lg px-3 py-2 text-white">
+            </div>
+            <div class="sm:col-span-3">
+              <button type="submit" id="btn-test-notif" class="w-full px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-emerald-300 font-semibold transition">
+                Send Test Alert
+              </button>
+            </div>
+          </form>
+          <div id="test-notif-result" class="hidden text-xs bg-dark-950/70 border border-slate-800 rounded-xl p-3 font-mono text-slate-300"></div>
+        </div>
       </div>
     </section>
   </main>
+
+  <!-- ────────────────────────────────────────────────────────────────────────
+       MODAL: API AUTHENTICATION LOGIN
+       ──────────────────────────────────────────────────────────────────────── -->
+  <div id="modal-api-auth" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-dark-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="text-base font-bold text-white flex items-center space-x-2">
+          <i class="fa-solid fa-shield-halved text-emerald-400"></i>
+          <span>Server API Key Authentication</span>
+        </h3>
+        <button type="button" onclick="cancelAuthModal()" class="text-slate-400 hover:text-white text-sm"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <p class="text-xs text-slate-300 leading-relaxed">
+        Enter your configured <code class="bg-dark-800 px-1.5 py-0.5 rounded text-emerald-300 font-mono">API_KEY</code> to unlock protected trading, research, and settings APIs. The key is stored only in your browser's local storage.
+      </p>
+
+      <form id="api-auth-form" onsubmit="handleAuthSubmit(event)" class="space-y-4 text-xs">
+        <div>
+          <label class="block text-slate-300 font-medium mb-1">API Key</label>
+          <div class="relative">
+            <input type="password" id="modal-auth-key-input" placeholder="Paste your API_KEY..." class="w-full bg-dark-800 border border-slate-700 rounded-lg pl-3 pr-10 py-2.5 text-sm text-white font-mono focus:outline-none focus:border-emerald-500" autocomplete="current-password" required>
+            <button type="button" onclick="toggleAuthKeyVisibility()" class="absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-200">
+              <i id="auth-eye-icon" class="fa-regular fa-eye"></i>
+            </button>
+          </div>
+          <p id="modal-auth-error" class="hidden text-rose-400 text-xs mt-1.5 font-medium"></p>
+        </div>
+
+        <div class="flex items-center justify-between pt-1">
+          <button type="button" onclick="clearStoredApiKey()" class="text-xs text-slate-400 hover:text-rose-300 transition">
+            <i class="fa-solid fa-right-from-bracket mr-1"></i> Clear Stored Key
+          </button>
+          <div class="flex space-x-2">
+            <button type="button" onclick="cancelAuthModal()" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300">Cancel</button>
+            <button type="submit" id="modal-auth-submit-btn" class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold">Unlock Terminal</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <!-- ────────────────────────────────────────────────────────────────────────
        MODAL: LOG PLACED ORDER
@@ -464,21 +726,29 @@
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="block text-slate-300 font-medium mb-1">Symbol</label>
-            <input type="text" id="modal-order-symbol" class="w-full bg-dark-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-bold" required>
+            <input type="text" id="modal-order-symbol" class="w-full bg-dark-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-bold uppercase" required>
+          </div>
+          <div>
+            <label class="block text-slate-300 font-medium mb-1">Option Type</label>
+            <select id="modal-order-option-type" class="w-full bg-dark-800 border border-slate-700 rounded-lg px-3 py-2 text-white">
+              <option value="CALL">CALL</option>
+              <option value="PUT">PUT</option>
+            </select>
           </div>
           <div>
             <label class="block text-slate-300 font-medium mb-1">Structure</label>
             <select id="modal-order-structure" onchange="toggleShortStrikeField()" class="w-full bg-dark-800 border border-slate-700 rounded-lg px-3 py-2 text-white">
               <option value="LONG_CALL">LONG_CALL</option>
               <option value="CALL_DEBIT_SPREAD">CALL_DEBIT_SPREAD</option>
+              <option value="LONG_PUT">LONG_PUT</option>
             </select>
           </div>
           <div>
-            <label class="block text-slate-300 font-medium mb-1" id="label-order-strike">Long Strike ($)</label>
+            <label class="block text-slate-300 font-medium mb-1">Long Strike ($)</label>
             <input type="number" step="0.5" id="modal-order-strike" class="w-full bg-dark-800 border border-slate-700 rounded-lg px-3 py-2 text-white" required>
           </div>
-          <div id="modal-order-short-strike-wrap" class="hidden">
-            <label class="block text-slate-300 font-medium mb-1">Short Strike ($ - Spread)</label>
+          <div id="modal-order-short-strike-wrap" class="hidden col-span-2">
+            <label class="block text-slate-300 font-medium mb-1">Short Strike ($ — Spread)</label>
             <input type="number" step="0.5" id="modal-order-short-strike" placeholder="e.g. 170.0" class="w-full bg-dark-800 border border-slate-700 rounded-lg px-3 py-2 text-white">
           </div>
           <div>
@@ -489,7 +759,7 @@
             <label class="block text-slate-300 font-medium mb-1">Contracts Bought</label>
             <input type="number" id="modal-order-contracts" value="1" min="1" class="w-full bg-dark-800 border border-slate-700 rounded-lg px-3 py-2 text-white" required>
           </div>
-          <div>
+          <div class="col-span-2">
             <label class="block text-slate-300 font-medium mb-1">Fill Price ($/sh)</label>
             <input type="number" step="0.01" id="modal-order-fill" class="w-full bg-dark-800 border border-slate-700 rounded-lg px-3 py-2 text-white" placeholder="e.g. 3.40" required>
           </div>
@@ -499,7 +769,7 @@
           <label class="block text-slate-300 font-medium mb-1">Tracking Status</label>
           <select id="modal-order-tracking" class="w-full bg-dark-800 border border-slate-700 rounded-lg px-3 py-2 text-white">
             <option value="TRACKED" selected>TRACKED (Active continuous monitoring)</option>
-            <option value="UNTRACKED">UNTRACKED (Stored, but excluded from alerts)</option>
+            <option value="UNTRACKED">UNTRACKED (Stored, excluded from alerts)</option>
           </select>
         </div>
 
@@ -535,12 +805,12 @@
 
         <div>
           <label class="block text-slate-300 font-medium mb-1">Current Option Price ($/sh)</label>
-          <input type="number" step="0.01" id="modal-pnl-current-price" placeholder="Leave empty to auto-calculate from PnL" class="w-full bg-dark-800 border border-slate-700 rounded-lg px-3 py-2 text-white">
+          <input type="number" step="0.01" id="modal-pnl-current-price" placeholder="Leave empty to auto-calc from PnL" class="w-full bg-dark-800 border border-slate-700 rounded-lg px-3 py-2 text-white">
         </div>
 
         <div>
           <label class="block text-slate-300 font-medium mb-1">Or Explicit PnL ($ USD)</label>
-          <input type="number" step="0.5" id="modal-pnl-explicit" placeholder="e.g. +75.00 or -30.00" class="w-full bg-dark-800 border border-slate-700 rounded-lg px-3 py-2 text-white">
+          <input type="number" step="0.5" id="modal-pnl-explicit" placeholder="e.g. 75.00 or -30.00" class="w-full bg-dark-800 border border-slate-700 rounded-lg px-3 py-2 text-white">
           <span class="text-[10px] text-slate-500">Provide either Current Price or PnL</span>
         </div>
 
@@ -554,6 +824,108 @@
           <button type="submit" class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-medium">Update PnL</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- ────────────────────────────────────────────────────────────────────────
+       MODAL: CLOSE ORDER
+       ──────────────────────────────────────────────────────────────────────── -->
+  <div id="modal-close-order" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-dark-900 border border-slate-800 rounded-2xl max-w-sm w-full p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="text-base font-bold text-white flex items-center space-x-2">
+          <i class="fa-solid fa-flag-checkered text-rose-400"></i>
+          <span>Close Placed Order</span>
+        </h3>
+        <button onclick="closeCloseOrderModal()" class="text-slate-400 hover:text-white text-sm"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <form id="close-order-form" onsubmit="handleCloseOrderSubmit(event)" class="space-y-4 text-xs">
+        <input type="hidden" id="modal-close-order-id" value="">
+        <p class="text-slate-300" id="modal-close-order-label">Closing Order</p>
+
+        <div>
+          <label class="block text-slate-300 font-medium mb-1">Exit Fill Price ($/sh)</label>
+          <input type="number" step="0.01" min="0" id="modal-close-exit-price" class="w-full bg-dark-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-bold" required>
+        </div>
+
+        <div>
+          <label class="block text-slate-300 font-medium mb-1">Close Note (Optional)</label>
+          <input type="text" id="modal-close-notes" placeholder="e.g. Hit 50% target exit" class="w-full bg-dark-800 border border-slate-700 rounded-lg px-3 py-2 text-white">
+        </div>
+
+        <div class="flex justify-end space-x-2 pt-2">
+          <button type="button" onclick="closeCloseOrderModal()" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300">Cancel</button>
+          <button type="submit" class="px-4 py-2 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-semibold">Confirm Close</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ────────────────────────────────────────────────────────────────────────
+       MODAL: EXECUTE RECOMMENDATION
+       ──────────────────────────────────────────────────────────────────────── -->
+  <div id="modal-execute-rec" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-dark-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="text-base font-bold text-white flex items-center space-x-2">
+          <i class="fa-solid fa-play-circle text-emerald-400"></i>
+          <span>Execute Recommendation</span>
+        </h3>
+        <button onclick="closeExecuteModal()" class="text-slate-400 hover:text-white text-sm"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <form id="execute-rec-form" onsubmit="handleExecuteSubmit(event)" class="space-y-4 text-xs">
+        <input type="hidden" id="modal-exec-rec-id" value="">
+        <div id="modal-exec-summary" class="p-3 rounded-xl bg-dark-950/60 border border-slate-800 text-slate-200"></div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-300 font-medium mb-1">Execution Broker</label>
+            <select id="modal-exec-broker" class="w-full bg-dark-800 border border-slate-700 rounded-lg px-3 py-2 text-white font-semibold">
+              <option value="PAPER" selected>PAPER (Simulated)</option>
+              <option value="ALPACA">ALPACA</option>
+              <option value="ROBINHOOD">ROBINHOOD</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-slate-300 font-medium mb-1">Contracts</label>
+            <input type="number" min="1" id="modal-exec-contracts" value="1" class="w-full bg-dark-800 border border-slate-700 rounded-lg px-3 py-2 text-white" required>
+          </div>
+          <div class="col-span-2">
+            <label class="block text-slate-300 font-medium mb-1">Limit Price ($/sh)</label>
+            <input type="number" step="0.01" id="modal-exec-limit-price" class="w-full bg-dark-800 border border-slate-700 rounded-lg px-3 py-2 text-white" required>
+          </div>
+        </div>
+
+        <label class="flex items-center space-x-2 text-slate-300 cursor-pointer">
+          <input type="checkbox" id="modal-exec-record-order" checked class="rounded bg-dark-800 border-slate-700 text-emerald-500">
+          <span>Also log filled execution into Placed Orders portfolio</span>
+        </label>
+
+        <div>
+          <label class="block text-slate-300 font-medium mb-1">Execution Notes (Optional)</label>
+          <input type="text" id="modal-exec-notes" placeholder="e.g. Executed via Railway Web Terminal" class="w-full bg-dark-800 border border-slate-700 rounded-lg px-3 py-2 text-white">
+        </div>
+
+        <div class="flex justify-end space-x-2 pt-2">
+          <button type="button" onclick="closeExecuteModal()" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300">Cancel</button>
+          <button type="submit" id="modal-exec-submit-btn" class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold">Submit Execution</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ────────────────────────────────────────────────────────────────────────
+       MODAL: INSPECT DETAIL (Orders / Recommendations / Scan Jobs)
+       ──────────────────────────────────────────────────────────────────────── -->
+  <div id="modal-detail-viewer" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-dark-900 border border-slate-800 rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-4 max-h-[85vh] flex flex-col">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 id="modal-detail-title" class="text-base font-bold text-white">Details</h3>
+        <button onclick="closeDetailModal()" class="text-slate-400 hover:text-white text-sm"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div id="modal-detail-body" class="overflow-y-auto text-xs text-slate-300 space-y-3"></div>
     </div>
   </div>
 
@@ -577,8 +949,8 @@
           <div class="flex flex-wrap gap-1.5 mt-2">
             <button type="button" onclick="applyScanPreset('')" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px]">All 3 Sectors</button>
             <button type="button" onclick="applyScanPreset('NVDA, OKLO, XOM')" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px]">NVDA, OKLO, XOM</button>
-            <button type="button" onclick="applyScanPreset('NVDA, AMD, TSM, AVGO')" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px]">AI & Chips</button>
-            <button type="button" onclick="applyScanPreset('XOM, LNG, EQT, OXY')" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px]">Energy & Gas</button>
+            <button type="button" onclick="applyScanPreset('NVDA, AMD, TSM, AVGO')" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px]">AI &amp; Chips</button>
+            <button type="button" onclick="applyScanPreset('XOM, LNG, EQT, OXY')" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px]">Energy &amp; Gas</button>
             <button type="button" onclick="applyScanPreset('OKLO, CEG, VST, SMR')" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px]">Nuclear SMRs</button>
           </div>
         </div>
@@ -600,7 +972,7 @@
         </label>
 
         <p class="text-[11px] text-slate-400 bg-dark-950/60 border border-slate-800 rounded-lg p-2.5">
-          Runs the full 3-agent LangGraph workflow (Scanner → Structurer → Risk Sentinel) using Claude Haiku 5.5, strictly Calls-Only (LONG_CALL / CALL_DEBIT_SPREAD).
+          Runs the full 3-agent LangGraph workflow (Scanner → Structurer → Risk Sentinel), strictly Calls-Only (LONG_CALL / CALL_DEBIT_SPREAD).
         </p>
 
         <div class="flex justify-end space-x-2 pt-2">
@@ -623,23 +995,176 @@
     let currentOrdersTimeframe = 'all';
     let chatConversationHistory = [];
     let scanPollTimer = null;
+    const recommendationsById = {};
     const API_AUTH_REQUIRED = {{ 'true' if auth_required else 'false' }};
     let _authPromptPromise = null;
+    let _authModalResolve = null;
 
+    // ── Utilities & Safe Formatting ────────────────────────────────────────
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function fmtNum(val, digits = 2, fallback = '0.00') {
+      if (val === null || val === undefined || isNaN(Number(val))) return fallback;
+      return Number(val).toFixed(digits);
+    }
+
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const colors = {
+        success: 'bg-emerald-950/95 border-emerald-500/50 text-emerald-200',
+        error: 'bg-rose-950/95 border-rose-500/50 text-rose-200',
+        info: 'bg-slate-900/95 border-slate-700 text-slate-200',
+      };
+      const icons = {
+        success: 'fa-circle-check text-emerald-400',
+        error: 'fa-triangle-exclamation text-rose-400',
+        info: 'fa-circle-info text-blue-400',
+      };
+      const el = document.createElement('div');
+      el.className = `pointer-events-auto border rounded-xl px-4 py-3 text-xs shadow-xl flex items-start space-x-2.5 transition-opacity duration-300 ${colors[type] || colors.info}`;
+      el.innerHTML = `
+        <i class="fa-solid ${icons[type] || icons.info} mt-0.5 flex-shrink-0"></i>
+        <span class="flex-1 leading-relaxed">${escapeHtml(message)}</span>
+        <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+      `;
+      container.appendChild(el);
+      setTimeout(() => {
+        el.style.opacity = '0';
+        setTimeout(() => el.remove(), 300);
+      }, 4500);
+    }
+
+    // ── Auth Modal & API Fetch Wrapper ─────────────────────────────────────
     function getStoredApiKey() {
       return localStorage.getItem('antigravity_api_key') || '';
     }
 
-    async function promptForApiKeyOnce() {
-      if (_authPromptPromise) return _authPromptPromise;
-      _authPromptPromise = (async () => {
-        const entered = window.prompt('API authentication is enabled on this server. Enter your API_KEY:');
-        if (entered && entered.trim()) {
-          localStorage.setItem('antigravity_api_key', entered.trim());
-          return entered.trim();
+    function updateAuthBadge() {
+      const btn = document.getElementById('header-auth-btn');
+      const label = document.getElementById('header-auth-label');
+      const icon = btn.querySelector('i');
+      const hasKey = Boolean(getStoredApiKey());
+
+      if (!API_AUTH_REQUIRED) {
+        label.textContent = hasKey ? 'Key Saved' : 'Open Access';
+        icon.className = 'fa-solid fa-unlock text-emerald-400';
+      } else if (hasKey) {
+        label.textContent = 'Unlocked';
+        icon.className = 'fa-solid fa-key text-emerald-400';
+      } else {
+        label.textContent = 'Unlock API';
+        icon.className = 'fa-solid fa-lock text-amber-400';
+      }
+    }
+
+    function openAuthModal(errorMessage = '') {
+      const modal = document.getElementById('modal-api-auth');
+      const input = document.getElementById('modal-auth-key-input');
+      const errEl = document.getElementById('modal-auth-error');
+      input.value = getStoredApiKey();
+      input.type = 'password';
+      document.getElementById('auth-eye-icon').className = 'fa-regular fa-eye';
+      if (errorMessage) {
+        errEl.textContent = errorMessage;
+        errEl.classList.remove('hidden');
+      } else {
+        errEl.classList.add('hidden');
+      }
+      modal.classList.remove('hidden');
+      setTimeout(() => input.focus(), 50);
+    }
+
+    function closeAuthModal() {
+      document.getElementById('modal-api-auth').classList.add('hidden');
+    }
+
+    function cancelAuthModal() {
+      closeAuthModal();
+      if (_authModalResolve) {
+        const resolve = _authModalResolve;
+        _authModalResolve = null;
+        resolve('');
+      }
+    }
+
+    function toggleAuthKeyVisibility() {
+      const input = document.getElementById('modal-auth-key-input');
+      const icon = document.getElementById('auth-eye-icon');
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'fa-regular fa-eye-slash';
+      } else {
+        input.type = 'password';
+        icon.className = 'fa-regular fa-eye';
+      }
+    }
+
+    function clearStoredApiKey() {
+      localStorage.removeItem('antigravity_api_key');
+      document.getElementById('modal-auth-key-input').value = '';
+      updateAuthBadge();
+      showToast('Stored API key cleared from browser.', 'info');
+      if (_authModalResolve) {
+        const resolve = _authModalResolve;
+        _authModalResolve = null;
+        resolve('');
+      }
+      closeAuthModal();
+    }
+
+    async function handleAuthSubmit(e) {
+      e.preventDefault();
+      const input = document.getElementById('modal-auth-key-input');
+      const errEl = document.getElementById('modal-auth-error');
+      const btn = document.getElementById('modal-auth-submit-btn');
+      const key = input.value.trim();
+      if (!key) return;
+
+      btn.disabled = true;
+      btn.textContent = 'Verifying...';
+      errEl.classList.add('hidden');
+
+      try {
+        const verifyRes = await fetch('/api/stats', { headers: { 'X-API-Key': key } });
+        if (verifyRes.status === 401) {
+          errEl.textContent = 'Invalid API key (server returned 401 Unauthorized).';
+          errEl.classList.remove('hidden');
+          return;
         }
-        return '';
-      })();
+        localStorage.setItem('antigravity_api_key', key);
+        updateAuthBadge();
+        closeAuthModal();
+        showToast('API authentication unlocked.', 'success');
+
+        if (_authModalResolve) {
+          const resolve = _authModalResolve;
+          _authModalResolve = null;
+          resolve(key);
+        } else {
+          refreshDashboardData();
+        }
+      } catch (err) {
+        errEl.textContent = `Verification error: ${err.message}`;
+        errEl.classList.remove('hidden');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Unlock Terminal';
+      }
+    }
+
+    async function promptForApiKeyOnce(errorMessage = '') {
+      if (_authPromptPromise) return _authPromptPromise;
+      _authPromptPromise = new Promise(resolve => {
+        _authModalResolve = resolve;
+        openAuthModal(errorMessage);
+      });
       try {
         return await _authPromptPromise;
       } finally {
@@ -654,7 +1179,7 @@
 
       let res = await fetch(url, { ...options, headers });
       if (res.status === 401) {
-        const newKey = await promptForApiKeyOnce();
+        const newKey = await promptForApiKeyOnce('Server requires a valid API_KEY.');
         if (newKey) {
           headers.set('X-API-Key', newKey);
           res = await fetch(url, { ...options, headers });
@@ -663,16 +1188,51 @@
       return res;
     }
 
-    // App Initialization
-    document.addEventListener('DOMContentLoaded', async () => {
-      if (API_AUTH_REQUIRED && !getStoredApiKey()) {
-        await promptForApiKeyOnce();
+    async function readJsonSafe(res) {
+      const text = await res.text();
+      let data = {};
+      try {
+        data = text ? JSON.parse(text) : {};
+      } catch {
+        data = { detail: text || res.statusText };
       }
+      if (!res.ok) {
+        throw new Error(data.detail || data.message || `HTTP ${res.status}`);
+      }
+      return data;
+    }
+
+    // ── Initialization & Health ────────────────────────────────────────────
+    async function loadHealth() {
+      const pill = document.getElementById('header-health-pill');
+      try {
+        const res = await fetch('/health');
+        const h = await res.json();
+        const ok = h.status === 'ok';
+        const dot = ok ? 'bg-emerald-400' : 'bg-rose-400';
+        const label = ok ? `${h.dialect} connected` : 'DB error';
+        pill.innerHTML = `<span class="w-1.5 h-1.5 rounded-full ${dot}"></span><span>${escapeHtml(label)}</span>`;
+      } catch {
+        pill.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span><span>Offline</span>';
+      }
+    }
+
+    function refreshDashboardData() {
       loadStats();
       loadPlacedOrders();
       loadRecommendations();
+      loadScanJobs();
       loadSettings();
       checkLatestScanJob();
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      updateAuthBadge();
+      loadHealth();
+      if (API_AUTH_REQUIRED && !getStoredApiKey()) {
+        await promptForApiKeyOnce();
+      }
+      refreshDashboardData();
     });
 
     // ── Tab Switching ──────────────────────────────────────────────────────
@@ -692,7 +1252,10 @@
       }
 
       if (tabId === 'orders') loadPlacedOrders();
-      if (tabId === 'recommendations') loadRecommendations();
+      if (tabId === 'recommendations') {
+        loadRecommendations();
+        loadScanJobs();
+      }
       if (tabId === 'settings') loadSettings();
     }
 
@@ -700,25 +1263,36 @@
     async function loadStats() {
       try {
         const res = await apiFetch('/api/stats');
-        const data = await res.json();
-        document.getElementById('stat-budget').textContent = `$${data.weekly_budget.toFixed(2)}`;
-        document.getElementById('header-budget').textContent = `$${data.weekly_budget.toFixed(2)}`;
+        const data = await readJsonSafe(res);
+
+        document.getElementById('stat-budget').textContent = `$${fmtNum(data.weekly_budget)}`;
+        document.getElementById('header-budget').textContent = `$${fmtNum(data.weekly_budget)}`;
+        document.getElementById('stat-max-trade').textContent = `Max per trade: $${fmtNum(data.max_cost_per_trade, 0)}`;
         document.getElementById('stat-tracked-orders').textContent = data.active_tracked_orders_count;
         document.getElementById('badge-tracked-count').textContent = data.active_tracked_orders_count;
+        document.getElementById('stat-invested-tracked').textContent = `Invested: $${fmtNum(data.total_invested_tracked)}`;
         document.getElementById('stat-untracked-orders').textContent = data.untracked_orders_count;
+        document.getElementById('stat-portfolio-value').textContent = `Value: $${fmtNum(data.current_portfolio_value)}`;
         document.getElementById('stat-recs-count').textContent = data.total_recommendations;
+        document.getElementById('stat-db-dialect').textContent = `DB: ${data.database_dialect || 'ready'}`;
 
-        const pnl = data.unrealized_pnl;
-        const pnlSign = pnl >= 0 ? '+' : '';
+        document.getElementById('header-model-name').textContent = data.active_model || 'claude-haiku-5-5';
+        document.getElementById('header-model-pill').textContent = `${data.provider || 'llm'} • ${data.active_model || 'active'}`;
+
+        const pnl = Number(data.unrealized_pnl || 0);
+        const pnlSign = pnl >= 0 ? '+' : '-';
         const pnlEl = document.getElementById('stat-unrealized-pnl');
-        pnlEl.textContent = `${pnlSign}$${pnl.toFixed(2)}`;
+        pnlEl.textContent = `${pnlSign}$${Math.abs(pnl).toFixed(2)}`;
         pnlEl.className = `text-lg font-bold mt-1 ${pnl >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
-        document.getElementById('header-pnl').textContent = `${pnlSign}$${pnl.toFixed(2)}`;
-        document.getElementById('header-pnl').className = `font-semibold ${pnl >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
+        const headerPnl = document.getElementById('header-pnl');
+        headerPnl.textContent = `${pnlSign}$${Math.abs(pnl).toFixed(2)}`;
+        headerPnl.className = `font-semibold ${pnl >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
 
-        const realPnl = data.realized_pnl;
-        const realSign = realPnl >= 0 ? '+' : '';
-        document.getElementById('stat-realized-pnl').textContent = `${realSign}$${realPnl.toFixed(2)}`;
+        const realPnl = Number(data.realized_pnl || 0);
+        const realSign = realPnl >= 0 ? '+' : '-';
+        const realEl = document.getElementById('stat-realized-pnl');
+        realEl.textContent = `${realSign}$${Math.abs(realPnl).toFixed(2)}`;
+        realEl.className = `text-lg font-bold mt-1 ${realPnl >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
       } catch (err) {
         console.error('Failed to load stats:', err);
       }
@@ -744,18 +1318,17 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ message: msg, history: chatConversationHistory })
         });
-        const data = await res.json();
+        const data = await readJsonSafe(res);
         appendChatMessage('assistant', data.response);
 
         chatConversationHistory.push({ role: 'user', content: msg });
         chatConversationHistory.push({ role: 'assistant', content: data.response });
 
-        // Refresh stats, recommendations & orders in background in case tools updated them
         loadStats();
         loadPlacedOrders();
         loadRecommendations();
       } catch (err) {
-        appendChatMessage('assistant', `⚠️ Error communicating with agent: ${err.message}`);
+        appendChatMessage('assistant', `Error communicating with agent: ${err.message}`);
       } finally {
         submitBtn.disabled = false;
         submitBtn.innerHTML = '<span>Send</span><i class="fa-solid fa-paper-plane text-xs"></i>';
@@ -781,8 +1354,8 @@
         ? 'bg-blue-600 text-white rounded-2xl p-4 max-w-xl text-sm leading-relaxed'
         : 'bg-dark-800 border border-slate-700/60 text-slate-200 rounded-2xl p-4 max-w-2xl text-sm leading-relaxed';
 
-      // Simple Markdown formatting for boldness, lists, code
-      let formatted = text
+      const safe = escapeHtml(text);
+      const formatted = safe
         .replace(/\n\n/g, '<br><br>')
         .replace(/\n/g, '<br>')
         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
@@ -826,19 +1399,20 @@
     async function loadPlacedOrders() {
       const container = document.getElementById('orders-grouped-container');
       const tracking = document.getElementById('filter-order-tracking').value;
+      const status = document.getElementById('filter-order-status').value;
 
       try {
-        const res = await apiFetch(`/api/orders?timeframe=${currentOrdersTimeframe}&tracking_status=${tracking}`);
-        const data = await res.json();
+        const res = await apiFetch(`/api/orders?timeframe=${currentOrdersTimeframe}&tracking_status=${tracking}&status=${status}`);
+        const data = await readJsonSafe(res);
         const groups = data.groups || [];
 
         if (groups.length === 0) {
           container.innerHTML = `
             <div class="text-center py-16 bg-dark-900 border border-slate-800 rounded-2xl">
               <i class="fa-solid fa-briefcase text-slate-600 text-3xl mb-3 block"></i>
-              <p class="text-slate-300 text-sm font-semibold">No placed orders found for ${currentOrdersTimeframe.toUpperCase()}</p>
-              <p class="text-xs text-slate-500 mt-1">Log an order or prompt the agent when you execute a trade in your broker.</p>
-              <button onclick="openRecordOrderModal()" class="mt-4 px-4 py-2 rounded-lg bg-emerald-600 text-white text-xs font-medium">Log First Placed Order</button>
+              <p class="text-slate-300 text-sm font-semibold">No placed orders match the current filters</p>
+              <p class="text-xs text-slate-500 mt-1">Log an order, execute a recommendation, or switch filters above.</p>
+              <button onclick="openRecordOrderModal()" class="mt-4 px-4 py-2 rounded-lg bg-emerald-600 text-white text-xs font-medium">Log Placed Order</button>
             </div>
           `;
           return;
@@ -850,7 +1424,7 @@
             <div class="space-y-3">
               <div class="flex items-center space-x-2 text-xs font-semibold text-slate-400">
                 <i class="fa-regular fa-calendar text-emerald-400"></i>
-                <span class="text-slate-200 text-sm">${group.display_date}</span>
+                <span class="text-slate-200 text-sm">${escapeHtml(group.display_date)}</span>
                 <span class="px-2 py-0.5 rounded-full bg-slate-800 text-[10px] text-slate-400">${group.total_orders} order${group.total_orders > 1 ? 's' : ''}</span>
               </div>
               <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -858,32 +1432,33 @@
 
           group.orders.forEach(o => {
             const isTracked = o.tracking_status === 'TRACKED';
-            const pnl = o.pnl;
-            const pnlSign = pnl >= 0 ? '+' : '';
+            const isClosed = o.status === 'CLOSED';
+            const pnl = Number(o.pnl || 0);
+            const pnlSign = pnl >= 0 ? '+' : '-';
             const pnlColor = pnl >= 0 ? 'text-emerald-400' : 'text-rose-400';
             const pnlBg = pnl >= 0 ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-rose-500/10 border-rose-500/30';
             const strikeLabel = o.short_strike_price ? `$${o.strike_price} / $${o.short_strike_price} Spread` : `$${o.strike_price} Strike`;
+            const displayQuote = isClosed ? (o.exit_price ?? o.current_price ?? o.fill_price) : (o.current_price ?? o.fill_price);
 
             html += `
-              <div class="bg-dark-900 border border-slate-800 rounded-2xl p-4 shadow-lg hover:border-slate-700 transition flex flex-col justify-between space-y-4">
+              <div class="bg-dark-900 border ${isClosed ? 'border-slate-800/70 opacity-85' : 'border-slate-800'} rounded-2xl p-4 shadow-lg hover:border-slate-700 transition flex flex-col justify-between space-y-4">
                 <div>
-                  <div class="flex items-start justify-between">
+                  <div class="flex items-start justify-between gap-2">
                     <div>
-                      <div class="flex items-center space-x-2">
-                        <span class="text-base font-extrabold text-white">${o.symbol}</span>
-                        <span class="px-2 py-0.5 text-[10px] font-bold rounded-md bg-slate-800 text-slate-300 border border-slate-700">${o.structure}</span>
+                      <div class="flex flex-wrap items-center gap-1.5">
+                        <span class="text-base font-extrabold text-white">${escapeHtml(o.symbol)}</span>
+                        <span class="px-2 py-0.5 text-[10px] font-bold rounded-md bg-slate-800 text-slate-300 border border-slate-700">${escapeHtml(o.structure)}</span>
+                        ${isClosed ? '<span class="px-2 py-0.5 text-[10px] font-bold rounded-md bg-slate-700/60 text-slate-300">CLOSED</span>' : ''}
                       </div>
-                      <p class="text-xs text-slate-400 mt-0.5">${strikeLabel} • Exp: ${o.expiration_date} (${o.dte || '?'} DTE)</p>
+                      <p class="text-xs text-slate-400 mt-0.5">${escapeHtml(strikeLabel)} • Exp: ${escapeHtml(o.expiration_date)} (${o.dte ?? '?'} DTE)</p>
                     </div>
 
-                    <!-- Tracking State Pill -->
-                    <button onclick="toggleOrderTracking(${o.id}, '${isTracked ? 'UNTRACKED' : 'TRACKED'}')" title="Click to toggle TRACKED / UNTRACKED" class="px-2.5 py-1 rounded-full text-[10px] font-bold transition flex items-center space-x-1 ${isTracked ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/20' : 'bg-slate-800 text-slate-400 border border-slate-700 hover:bg-slate-700'}">
+                    <button onclick="toggleOrderTracking(${o.id}, '${isTracked ? 'UNTRACKED' : 'TRACKED'}')" title="Click to toggle TRACKED / UNTRACKED" class="px-2.5 py-1 rounded-full text-[10px] font-bold transition flex items-center space-x-1 flex-shrink-0 ${isTracked ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/20' : 'bg-slate-800 text-slate-400 border border-slate-700 hover:bg-slate-700'}">
                       <i class="fa-solid ${isTracked ? 'fa-circle-check text-emerald-400' : 'fa-circle-xmark text-slate-400'}"></i>
-                      <span>${o.tracking_status}</span>
+                      <span>${escapeHtml(o.tracking_status)}</span>
                     </button>
                   </div>
 
-                  <!-- Entry & Current Valuation -->
                   <div class="mt-4 grid grid-cols-2 gap-2 text-xs bg-dark-950/60 p-2.5 rounded-xl border border-slate-800/80">
                     <div>
                       <span class="text-slate-500 block text-[10px]">Position Size</span>
@@ -891,53 +1466,82 @@
                     </div>
                     <div>
                       <span class="text-slate-500 block text-[10px]">Total Outlay</span>
-                      <span class="text-slate-200 font-semibold">$${o.total_cost.toFixed(2)}</span>
+                      <span class="text-slate-200 font-semibold">$${fmtNum(o.total_cost)}</span>
                     </div>
                     <div>
                       <span class="text-slate-500 block text-[10px]">Fill Price</span>
-                      <span class="text-slate-200 font-semibold">$${o.fill_price.toFixed(2)}/sh</span>
+                      <span class="text-slate-200 font-semibold">$${fmtNum(o.fill_price)}/sh</span>
                     </div>
                     <div>
-                      <span class="text-slate-500 block text-[10px]">Current Quote</span>
-                      <span class="text-slate-200 font-semibold">$${(o.current_price || o.fill_price).toFixed(2)}/sh</span>
+                      <span class="text-slate-500 block text-[10px]">${isClosed ? 'Exit Price' : 'Current Quote'}</span>
+                      <span class="text-slate-200 font-semibold">$${fmtNum(displayQuote)}/sh</span>
                     </div>
                   </div>
 
-                  <!-- PnL Performance Badge -->
                   <div class="mt-3 p-2.5 rounded-xl border flex items-center justify-between ${pnlBg}">
                     <div>
-                      <span class="text-[10px] text-slate-400 block font-medium">Unrealized PnL</span>
-                      <span class="text-base font-extrabold ${pnlColor}">${pnlSign}$${pnl.toFixed(2)}</span>
+                      <span class="text-[10px] text-slate-400 block font-medium">${isClosed ? 'Realized PnL' : 'Unrealized PnL'}</span>
+                      <span class="text-base font-extrabold ${pnlColor}">${pnlSign}$${Math.abs(pnl).toFixed(2)}</span>
                     </div>
                     <div class="text-right">
                       <span class="text-[10px] text-slate-400 block font-medium">Return</span>
-                      <span class="text-sm font-bold ${pnlColor}">${pnlSign}${(o.pnl_percent || 0.0).toFixed(1)}%</span>
+                      <span class="text-sm font-bold ${pnlColor}">${Number(o.pnl_percent || 0) >= 0 ? '+' : ''}${fmtNum(o.pnl_percent, 1)}%</span>
                     </div>
                   </div>
                 </div>
 
-                <!-- Footer Actions -->
                 <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between text-xs">
-                  <span class="text-[10px] text-slate-500">Order #${o.id}</span>
+                  <button onclick="inspectOrder(${o.id})" class="text-[11px] text-slate-400 hover:text-emerald-300 font-mono transition">
+                    Order #${o.id} <i class="fa-solid fa-up-right-from-square text-[9px] ml-0.5"></i>
+                  </button>
                   <div class="flex items-center space-x-2">
-                    <button onclick="openUpdatePnLModal(${o.id}, '${o.symbol}', ${o.current_price || o.fill_price}, ${o.pnl})" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium transition">
-                      <i class="fa-solid fa-pen-to-square mr-1 text-emerald-400"></i> Update PnL
-                    </button>
-                    <button onclick="closeOrderPrompt(${o.id}, '${o.symbol}')" class="px-2 py-1 rounded bg-slate-800 hover:bg-rose-900/40 text-slate-400 hover:text-rose-300 transition" title="Close Position">
-                      <i class="fa-solid fa-flag-checkered"></i>
-                    </button>
+                    ${isClosed ? '' : `
+                      <button onclick="openUpdatePnLModal(${o.id}, '${escapeHtml(o.symbol)}', ${o.current_price ?? o.fill_price}, ${pnl})" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium transition">
+                        <i class="fa-solid fa-pen-to-square mr-1 text-emerald-400"></i> Update PnL
+                      </button>
+                      <button onclick="openCloseOrderModal(${o.id}, '${escapeHtml(o.symbol)}', ${o.current_price ?? o.fill_price})" class="px-2 py-1 rounded bg-slate-800 hover:bg-rose-900/40 text-slate-400 hover:text-rose-300 transition" title="Close Position">
+                        <i class="fa-solid fa-flag-checkered"></i>
+                      </button>
+                    `}
                   </div>
                 </div>
               </div>
             `;
           });
 
-          html += `</div></div>`;
+          html += '</div></div>';
         });
 
         container.innerHTML = html;
       } catch (err) {
-        container.innerHTML = `<div class="text-rose-400 text-center py-8">Failed to load orders: ${err.message}</div>`;
+        container.innerHTML = `<div class="text-rose-400 text-center py-8">Failed to load orders: ${escapeHtml(err.message)}</div>`;
+      }
+    }
+
+    async function inspectOrder(orderId) {
+      try {
+        const res = await apiFetch(`/api/orders/${orderId}`);
+        const data = await readJsonSafe(res);
+        const o = data.order;
+        document.getElementById('modal-detail-title').textContent = `Order #${o.id} — ${o.symbol} (${o.structure})`;
+        document.getElementById('modal-detail-body').innerHTML = `
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 bg-dark-950/60 border border-slate-800 p-4 rounded-xl">
+            <div><span class="text-slate-500 block">Status</span><strong class="text-white">${escapeHtml(o.status)}</strong></div>
+            <div><span class="text-slate-500 block">Tracking</span><strong class="text-emerald-400">${escapeHtml(o.tracking_status)}</strong></div>
+            <div><span class="text-slate-500 block">Expiration</span><strong class="text-white">${escapeHtml(o.expiration_date)} (${o.dte ?? '?'} DTE)</strong></div>
+            <div><span class="text-slate-500 block">Contracts</span><strong class="text-white">${o.contracts}</strong></div>
+            <div><span class="text-slate-500 block">Fill Price</span><strong class="text-white">$${fmtNum(o.fill_price)}/sh</strong></div>
+            <div><span class="text-slate-500 block">Current / Exit</span><strong class="text-white">$${fmtNum(o.exit_price ?? o.current_price ?? o.fill_price)}/sh</strong></div>
+            <div><span class="text-slate-500 block">Total Outlay</span><strong class="text-white">$${fmtNum(o.total_cost)}</strong></div>
+            <div><span class="text-slate-500 block">Current Value</span><strong class="text-white">$${fmtNum(o.current_value ?? o.total_cost)}</strong></div>
+            <div><span class="text-slate-500 block">PnL</span><strong class="${Number(o.pnl || 0) >= 0 ? 'text-emerald-400' : 'text-rose-400'}">$${fmtNum(o.pnl)} (${fmtNum(o.pnl_percent, 1)}%)</strong></div>
+          </div>
+          ${o.recommendation_id ? `<p><span class="text-slate-400">Linked Recommendation ID:</span> <code class="bg-dark-800 px-1.5 py-0.5 rounded">#${o.recommendation_id}</code></p>` : ''}
+          <div><span class="text-slate-400 block mb-1">Notes</span><div class="bg-dark-950/60 border border-slate-800 rounded-xl p-3 text-slate-200">${escapeHtml(o.notes || 'No notes recorded')}</div></div>
+        `;
+        document.getElementById('modal-detail-viewer').classList.remove('hidden');
+      } catch (err) {
+        showToast(`Could not load order #${orderId}: ${err.message}`, 'error');
       }
     }
 
@@ -948,39 +1552,49 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ tracking_status: newState })
         });
-        const data = await res.json();
+        await readJsonSafe(res);
+        showToast(`Order #${orderId} marked ${newState}.`, 'success');
         loadPlacedOrders();
         loadStats();
       } catch (err) {
-        alert(`Error updating tracking status: ${err.message}`);
+        showToast(`Error updating tracking: ${err.message}`, 'error');
       }
     }
 
     async function runLiveMonitoring() {
       const banner = document.getElementById('monitoring-alerts-banner');
       const body = document.getElementById('monitoring-banner-body');
+      const btn = document.getElementById('btn-monitor-live');
+      const trackingOnly = document.getElementById('monitor-tracking-only').checked;
+
       banner.classList.remove('hidden');
       body.textContent = 'Querying live option chains and recalculating active position PnLs...';
+      btn.disabled = true;
 
       try {
-        const res = await apiFetch('/api/orders/monitor', { method: 'POST' });
-        const data = await res.json();
+        const res = await apiFetch(`/api/orders/monitor?tracking_only=${trackingOnly}`, { method: 'POST' });
+        const data = await readJsonSafe(res);
         const r = data.report;
-        document.getElementById('monitoring-banner-title').textContent = `Live Monitoring Complete (${r.active_orders_count} Tracked Positions)`;
+        document.getElementById('monitoring-banner-title').textContent = `Live Monitoring Complete (${r.active_orders_count} Positions Checked)`;
+        const alertHtml = r.alerts && r.alerts.length > 0
+          ? `<div class="text-amber-300 mt-2 font-medium">Active Alerts:<br>• ${r.alerts.map(escapeHtml).join('<br>• ')}</div>`
+          : '<div class="text-emerald-300">All monitored positions within normal risk tolerance.</div>';
         body.innerHTML = `
           <div class="space-y-1">
-            <p><strong>Total Value:</strong> $${r.current_value.toFixed(2)} | <strong>Overall PnL:</strong> ${r.total_pnl >= 0 ? '+' : ''}$${r.total_pnl.toFixed(2)} (${r.total_pnl_percent.toFixed(1)}%)</p>
-            ${r.alerts && r.alerts.length > 0 ? `<div class="text-yellow-300 mt-2 font-medium">Active Alerts:<br>• ${r.alerts.join('<br>• ')}</div>` : '<div class="text-emerald-300">All tracked positions within normal risk tolerance.</div>'}
+            <p><strong>Total Value:</strong> $${fmtNum(r.current_value)} | <strong>Overall PnL:</strong> ${r.total_pnl >= 0 ? '+' : '-'}$${Math.abs(r.total_pnl || 0).toFixed(2)} (${fmtNum(r.total_pnl_percent, 1)}%)</p>
+            ${alertHtml}
           </div>
         `;
         loadPlacedOrders();
         loadStats();
       } catch (err) {
-        body.textContent = `Monitoring error: ${err.message}`;
+        body.innerHTML = `<span class="text-rose-300">Monitoring error: ${escapeHtml(err.message)}</span>`;
+      } finally {
+        btn.disabled = false;
       }
     }
 
-    // ── Recommendations History Logic ──────────────────────────────────────
+    // ── Recommendations History & Actions ──────────────────────────────────
     function setRecsTimeframe(tf) {
       currentRecsTimeframe = tf;
       document.querySelectorAll('.timeframe-btn-recs').forEach(btn => {
@@ -997,16 +1611,17 @@
 
     async function loadRecommendations() {
       const container = document.getElementById('recs-grouped-container');
+      const status = document.getElementById('filter-recs-status').value;
       try {
-        const res = await apiFetch(`/api/recommendations?timeframe=${currentRecsTimeframe}`);
-        const data = await res.json();
+        const res = await apiFetch(`/api/recommendations?timeframe=${currentRecsTimeframe}&status=${status}`);
+        const data = await readJsonSafe(res);
         const groups = data.groups || [];
 
         if (groups.length === 0) {
           container.innerHTML = `
             <div class="text-center py-16 bg-dark-900 border border-slate-800 rounded-2xl">
               <i class="fa-solid fa-lightbulb text-slate-600 text-3xl mb-3 block"></i>
-              <p class="text-slate-300 text-sm font-semibold">No recommendations found for ${currentRecsTimeframe.toUpperCase()}</p>
+              <p class="text-slate-300 text-sm font-semibold">No recommendations match the current filter</p>
               <button onclick="openGenerateModal()" class="mt-4 px-4 py-2 rounded-lg bg-emerald-600 text-white text-xs font-medium">Generate On-Demand Scan</button>
             </div>
           `;
@@ -1020,107 +1635,575 @@
           return name || 'Market';
         };
 
+        const statusClass = (st) => {
+          if (st === 'APPROVED') return 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30';
+          if (st === 'EXECUTED') return 'bg-blue-500/15 text-blue-300 border-blue-500/30';
+          if (st === 'REJECTED') return 'bg-rose-500/15 text-rose-300 border-rose-500/30';
+          return 'bg-amber-500/15 text-amber-300 border-amber-500/30';
+        };
+
         let html = '';
         groups.forEach(group => {
           html += `
             <div class="space-y-4">
               <div class="flex items-center space-x-2 text-xs font-semibold text-slate-400">
                 <i class="fa-regular fa-calendar-check text-emerald-400"></i>
-                <span class="text-slate-200 text-sm">${group.display_date}</span>
+                <span class="text-slate-200 text-sm">${escapeHtml(group.display_date)}</span>
                 <span class="px-2 py-0.5 rounded-full bg-slate-800 text-[10px] text-slate-400">${group.total_recommendations} candidate${group.total_recommendations > 1 ? 's' : ''} • Ranked by Profit Confidence</span>
               </div>
               <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
           `;
 
           group.recommendations.forEach((r, idx) => {
+            recommendationsById[r.id] = r;
             const recStrikeLabel = r.short_strike_price ? `$${r.strike_price} / $${r.short_strike_price} Spread` : `$${r.strike_price} Strike`;
             const rankNum = idx + 1;
             const rankBadge = rankNum === 1
-              ? `<span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40">★ Rank #1</span>`
+              ? '<span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40">Rank #1</span>'
               : `<span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-slate-800 text-slate-300 border border-slate-700">Rank #${rankNum}</span>`;
-            const catBadge = `<span class="px-2 py-0.5 text-[10px] font-semibold rounded-md bg-blue-500/10 text-blue-300 border border-blue-500/30">${catBadgeLabel(r.sector_category, r.sector_name)}</span>`;
+            const catBadge = `<span class="px-2 py-0.5 text-[10px] font-semibold rounded-md bg-blue-500/10 text-blue-300 border border-blue-500/30">${escapeHtml(catBadgeLabel(r.sector_category, r.sector_name))}</span>`;
 
             html += `
-              <div class="bg-dark-900 border ${rankNum === 1 ? 'border-emerald-500/40' : 'border-slate-800'} rounded-2xl p-5 shadow-lg space-y-4">
-                <div class="flex items-start justify-between">
-                  <div>
-                    <div class="flex flex-wrap items-center gap-2">
-                      ${rankBadge}
-                      <span class="text-lg font-black text-white">${r.symbol}</span>
-                      <span class="px-2 py-0.5 text-xs font-bold rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">${r.structure || r.option_type}</span>
-                      ${catBadge}
-                      <span class="text-xs text-slate-400 font-mono">${recStrikeLabel}</span>
+              <div class="bg-dark-900 border ${rankNum === 1 ? 'border-emerald-500/40' : 'border-slate-800'} rounded-2xl p-5 shadow-lg space-y-4 flex flex-col justify-between">
+                <div class="space-y-4">
+                  <div class="flex items-start justify-between gap-2">
+                    <div>
+                      <div class="flex flex-wrap items-center gap-1.5">
+                        ${rankBadge}
+                        <span class="text-lg font-black text-white">${escapeHtml(r.symbol)}</span>
+                        <span class="px-2 py-0.5 text-xs font-bold rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">${escapeHtml(r.structure || r.option_type)}</span>
+                        ${catBadge}
+                        <span class="px-2 py-0.5 text-[10px] font-bold rounded-md border ${statusClass(r.status)}">${escapeHtml(r.status)}</span>
+                      </div>
+                      <p class="text-xs text-slate-400 mt-1 font-mono">${escapeHtml(recStrikeLabel)} • Exp: ${escapeHtml(r.expiration_date)} (${r.dte ?? '?'} DTE) • Spot: $${fmtNum(r.underlying_price)}</p>
                     </div>
-                    <p class="text-xs text-slate-400 mt-1">Exp: ${r.expiration_date} (${r.dte || '?'} DTE) • Spot: $${r.underlying_price.toFixed(2)}</p>
+                    <div class="text-right flex-shrink-0">
+                      <span class="text-xs font-bold text-emerald-400">${escapeHtml(r.confidence_rating || 'MEDIUM')} (${fmtNum(r.confidence_score_pct ?? 50, 0)}%)</span>
+                      <span class="text-[10px] text-slate-500 block">Risk: ${escapeHtml(r.risk_rating || 'MODERATE')}</span>
+                    </div>
                   </div>
-                  <div class="text-right">
-                    <span class="text-xs font-bold text-emerald-400">${r.confidence_rating || 'MEDIUM'} (${(r.confidence_score_pct || 50).toFixed(0)}%)</span>
-                    <span class="text-[10px] text-slate-500 block">Risk: ${r.risk_rating || 'MODERATE'}</span>
+
+                  <div class="grid grid-cols-4 gap-2 text-xs bg-dark-950/60 p-3 rounded-xl border border-slate-800/80 text-center">
+                    <div>
+                      <span class="text-slate-500 block text-[10px]">Entry Mid</span>
+                      <span class="font-semibold text-slate-200">$${fmtNum(r.entry_price_estimate)}</span>
+                    </div>
+                    <div>
+                      <span class="text-slate-500 block text-[10px]">Total Outlay</span>
+                      <span class="font-semibold text-slate-200">$${fmtNum(r.max_cost)}</span>
+                    </div>
+                    <div>
+                      <span class="text-slate-500 block text-[10px]">Target Exit</span>
+                      <span class="font-semibold text-emerald-400">$${fmtNum(r.target_exit_price)} (+${fmtNum(r.estimated_profit_pct ?? 50, 0)}%)</span>
+                    </div>
+                    <div>
+                      <span class="text-slate-500 block text-[10px]">Stop Loss</span>
+                      <span class="font-semibold text-rose-400">$${fmtNum(r.stop_loss_price)}</span>
+                    </div>
+                  </div>
+
+                  <div class="text-xs text-slate-300 space-y-1.5">
+                    <p><strong>Why Selected:</strong> ${escapeHtml(r.why_selected || r.thesis)}</p>
+                    ${r.when_to_buy ? `<p><strong>Entry Trigger:</strong> ${escapeHtml(r.when_to_buy)}</p>` : ''}
+                    ${r.sell_conditions ? `<p class="text-slate-400"><strong>Exit Rules:</strong> ${escapeHtml(r.sell_conditions)}</p>` : ''}
                   </div>
                 </div>
 
-                <!-- Price Targets Grid -->
-                <div class="grid grid-cols-4 gap-2 text-xs bg-dark-950/60 p-3 rounded-xl border border-slate-800/80 text-center">
-                  <div>
-                    <span class="text-slate-500 block text-[10px]">Entry Mid</span>
-                    <span class="font-semibold text-slate-200">$${r.entry_price_estimate.toFixed(2)}</span>
-                  </div>
-                  <div>
-                    <span class="text-slate-500 block text-[10px]">Total Outlay</span>
-                    <span class="font-semibold text-slate-200">$${(r.max_cost || 0).toFixed(2)}</span>
-                  </div>
-                  <div>
-                    <span class="text-slate-500 block text-[10px]">Target Exit</span>
-                    <span class="font-semibold text-emerald-400">$${r.target_exit_price.toFixed(2)} (+${(r.estimated_profit_pct || 50).toFixed(0)}%)</span>
-                  </div>
-                  <div>
-                    <span class="text-slate-500 block text-[10px]">Stop Loss</span>
-                    <span class="font-semibold text-rose-400">$${r.stop_loss_price.toFixed(2)} (-25%)</span>
-                  </div>
-                </div>
-
-                <!-- Advisory Rationale -->
-                <div class="text-xs text-slate-300 space-y-1.5">
-                  <p><strong>Why Selected:</strong> ${r.why_selected || r.thesis}</p>
-                  ${r.when_to_buy ? `<p><strong>Entry Trigger:</strong> ${r.when_to_buy}</p>` : ''}
-                  ${r.sell_conditions ? `<p class="text-slate-400"><strong>Exit Rules:</strong> ${r.sell_conditions}</p>` : ''}
-                </div>
-
-                <!-- Bottom action: Log Placed Order -->
-                <div class="pt-2 border-t border-slate-800 flex items-center justify-between">
-                  <span class="text-[10px] text-slate-500 font-mono">ID #${r.id} • Status: ${r.status}</span>
-                  <button onclick="prefillRecordOrderFromRec(${JSON.stringify(r).replace(/"/g, '&quot;')})" class="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-xs transition flex items-center space-x-1.5 shadow-md shadow-emerald-600/20">
-                    <i class="fa-solid fa-check"></i>
-                    <span>I Placed This Order</span>
+                <div class="pt-3 border-t border-slate-800 flex flex-wrap items-center justify-between gap-2">
+                  <button onclick="inspectRecommendation(${r.id})" class="text-[11px] text-slate-400 hover:text-emerald-300 font-mono transition">
+                    Rec #${r.id} <i class="fa-solid fa-up-right-from-square text-[9px] ml-0.5"></i>
                   </button>
+                  <div class="flex flex-wrap items-center gap-1.5 text-xs">
+                    ${r.status === 'PENDING_APPROVAL' ? `
+                      <button onclick="setRecommendationDecision(${r.id}, 'approve')" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-emerald-900/50 border border-slate-700 text-emerald-300 font-medium transition">Approve</button>
+                      <button onclick="setRecommendationDecision(${r.id}, 'reject')" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-rose-900/40 border border-slate-700 text-rose-300 font-medium transition">Reject</button>
+                    ` : ''}
+                    <button onclick="openExecuteModal(${r.id})" class="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-medium transition flex items-center space-x-1">
+                      <i class="fa-solid fa-play text-[10px]"></i>
+                      <span>Execute</span>
+                    </button>
+                    <button onclick="prefillRecordOrderById(${r.id})" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-medium transition flex items-center space-x-1">
+                      <i class="fa-solid fa-check text-[10px]"></i>
+                      <span>Log Fill</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             `;
           });
 
-          html += `</div></div>`;
+          html += '</div></div>';
         });
 
         container.innerHTML = html;
       } catch (err) {
-        container.innerHTML = `<div class="text-rose-400 text-center py-8">Failed to load recommendations: ${err.message}</div>`;
+        container.innerHTML = `<div class="text-rose-400 text-center py-8">Failed to load recommendations: ${escapeHtml(err.message)}</div>`;
       }
     }
 
-    // ── Settings Management ────────────────────────────────────────────────
+    async function setRecommendationDecision(recId, action) {
+      try {
+        const res = await apiFetch(`/api/recommendations/${recId}/${action}`, { method: 'POST' });
+        await readJsonSafe(res);
+        showToast(`Recommendation #${recId} ${action === 'approve' ? 'approved' : 'rejected'}.`, 'success');
+        loadRecommendations();
+      } catch (err) {
+        showToast(`Action failed: ${err.message}`, 'error');
+      }
+    }
+
+    async function inspectRecommendation(recId) {
+      try {
+        const res = await apiFetch(`/api/recommendations/${recId}`);
+        const data = await readJsonSafe(res);
+        const r = data.recommendation;
+        document.getElementById('modal-detail-title').textContent = `Recommendation #${r.id} — ${r.symbol}`;
+        document.getElementById('modal-detail-body').innerHTML = `
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-dark-950/60 border border-slate-800 p-4 rounded-xl">
+            <div><span class="text-slate-500 block">Status</span><strong class="text-white">${escapeHtml(r.status)}</strong></div>
+            <div><span class="text-slate-500 block">Structure</span><strong class="text-emerald-400">${escapeHtml(r.structure || r.option_type)}</strong></div>
+            <div><span class="text-slate-500 block">Strike</span><strong class="text-white">$${r.strike_price}${r.short_strike_price ? ' / $' + r.short_strike_price : ''}</strong></div>
+            <div><span class="text-slate-500 block">Contracts</span><strong class="text-white">${r.max_contracts || 1}</strong></div>
+            <div><span class="text-slate-500 block">Spot Price</span><strong class="text-white">$${fmtNum(r.underlying_price)}</strong></div>
+            <div><span class="text-slate-500 block">Entry Est.</span><strong class="text-white">$${fmtNum(r.entry_price_estimate)}</strong></div>
+            <div><span class="text-slate-500 block">Target Exit</span><strong class="text-emerald-400">$${fmtNum(r.target_exit_price)}</strong></div>
+            <div><span class="text-slate-500 block">Stop Loss</span><strong class="text-rose-400">$${fmtNum(r.stop_loss_price)}</strong></div>
+          </div>
+          ${r.contract_symbol ? `<p><span class="text-slate-400">Contract:</span> <code class="bg-dark-800 px-1.5 py-0.5 rounded text-emerald-300 font-mono">${escapeHtml(r.contract_symbol)}</code></p>` : ''}
+          <div><span class="text-slate-400 block mb-1">Thesis</span><div class="bg-dark-950/60 border border-slate-800 rounded-xl p-3">${escapeHtml(r.thesis || '')}</div></div>
+          ${r.technical_summary ? `<div><span class="text-slate-400 block mb-1">Technical Summary</span><div class="bg-dark-950/60 border border-slate-800 rounded-xl p-3">${escapeHtml(r.technical_summary)}</div></div>` : ''}
+          ${r.risks ? `<div><span class="text-slate-400 block mb-1">Key Risks</span><div class="bg-dark-950/60 border border-slate-800 rounded-xl p-3 text-rose-200/90">${escapeHtml(r.risks)}</div></div>` : ''}
+        `;
+        document.getElementById('modal-detail-viewer').classList.remove('hidden');
+      } catch (err) {
+        showToast(`Failed to inspect recommendation #${recId}: ${err.message}`, 'error');
+      }
+    }
+
+    function openExecuteModal(recId) {
+      const r = recommendationsById[recId];
+      if (!r) return;
+      document.getElementById('modal-exec-rec-id').value = r.id;
+      document.getElementById('modal-exec-contracts').value = r.max_contracts || 1;
+      document.getElementById('modal-exec-limit-price').value = r.entry_price_estimate;
+      document.getElementById('modal-exec-notes').value = '';
+      document.getElementById('modal-exec-summary').innerHTML = `
+        <div class="font-bold text-white">${escapeHtml(r.symbol)} • ${escapeHtml(r.structure || r.option_type)}</div>
+        <div class="text-slate-400 mt-0.5">Strike $${r.strike_price}${r.short_strike_price ? ' / $' + r.short_strike_price : ''} • Exp ${escapeHtml(r.expiration_date)}</div>
+      `;
+      document.getElementById('modal-execute-rec').classList.remove('hidden');
+    }
+
+    function closeExecuteModal() {
+      document.getElementById('modal-execute-rec').classList.add('hidden');
+    }
+
+    async function handleExecuteSubmit(e) {
+      e.preventDefault();
+      const recId = document.getElementById('modal-exec-rec-id').value;
+      const btn = document.getElementById('modal-exec-submit-btn');
+      const payload = {
+        broker: document.getElementById('modal-exec-broker').value,
+        contracts: parseInt(document.getElementById('modal-exec-contracts').value, 10),
+        limit_price: parseFloat(document.getElementById('modal-exec-limit-price').value),
+        record_placed_order: document.getElementById('modal-exec-record-order').checked,
+        notes: document.getElementById('modal-exec-notes').value.trim() || null,
+      };
+
+      btn.disabled = true;
+      btn.textContent = 'Submitting...';
+      try {
+        const res = await apiFetch(`/api/recommendations/${recId}/execute`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await readJsonSafe(res);
+        closeExecuteModal();
+        showToast(`Order submitted via ${payload.broker} (${data.execution?.status || 'ok'}).`, 'success');
+        loadRecommendations();
+        loadPlacedOrders();
+        loadStats();
+      } catch (err) {
+        showToast(`Execution failed: ${err.message}`, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Submit Execution';
+      }
+    }
+
+    // ── Scan Jobs History ──────────────────────────────────────────────────
+    async function loadScanJobs() {
+      const container = document.getElementById('scan-jobs-list');
+      try {
+        const res = await apiFetch('/api/scan/jobs?limit=15');
+        const data = await readJsonSafe(res);
+        const jobs = data.jobs || [];
+
+        if (jobs.length === 0) {
+          container.innerHTML = '<p class="text-xs text-slate-500 py-4 text-center">No scan jobs recorded yet.</p>';
+          return;
+        }
+
+        const pill = (st) => {
+          if (st === 'completed') return 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30';
+          if (st === 'failed') return 'bg-rose-500/15 text-rose-300 border-rose-500/30';
+          return 'bg-amber-500/15 text-amber-300 border-amber-500/30';
+        };
+
+        let html = `
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="border-b border-slate-800 text-slate-400">
+                <th class="py-2 pr-3 font-medium">Started</th>
+                <th class="py-2 pr-3 font-medium">Symbols</th>
+                <th class="py-2 pr-3 font-medium">Budget</th>
+                <th class="py-2 pr-3 font-medium">Status</th>
+                <th class="py-2 pr-3 font-medium">Duration</th>
+                <th class="py-2 pr-3 font-medium">Recs</th>
+                <th class="py-2 font-medium text-right">Details</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800/70">
+        `;
+
+        jobs.forEach(j => {
+          const started = j.started_at ? new Date(j.started_at * 1000).toLocaleString() : '—';
+          const syms = j.symbols && j.symbols.length ? j.symbols.join(', ') : 'All 3 Sectors';
+          html += `
+            <tr class="hover:bg-dark-950/40">
+              <td class="py-2.5 pr-3 text-slate-300 whitespace-nowrap">${escapeHtml(started)}</td>
+              <td class="py-2.5 pr-3 font-mono text-slate-200">${escapeHtml(syms)}</td>
+              <td class="py-2.5 pr-3 text-slate-300">${j.budget ? '$' + fmtNum(j.budget, 0) : 'Default'}</td>
+              <td class="py-2.5 pr-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold border ${pill(j.status)}">${escapeHtml(j.status)}</span></td>
+              <td class="py-2.5 pr-3 font-mono text-slate-400">${fmtNum(j.elapsed_seconds, 1)}s</td>
+              <td class="py-2.5 pr-3 font-semibold text-white">${j.recommendations_count ?? 0}</td>
+              <td class="py-2.5 text-right">
+                <button onclick="inspectScanJob('${escapeHtml(j.job_id)}')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 text-[11px] transition">Inspect</button>
+              </td>
+            </tr>
+          `;
+        });
+
+        html += '</tbody></table>';
+        container.innerHTML = html;
+      } catch (err) {
+        container.innerHTML = `<p class="text-xs text-rose-400 py-4 text-center">Failed to load scan jobs: ${escapeHtml(err.message)}</p>`;
+      }
+    }
+
+    async function inspectScanJob(jobId) {
+      try {
+        const res = await apiFetch(`/api/scan/status/${encodeURIComponent(jobId)}`);
+        const j = await readJsonSafe(res);
+        document.getElementById('modal-detail-title').textContent = `Scan Job ${j.job_id.slice(0, 8)} (${j.status})`;
+        const catalysts = (j.political_catalysts || []).map(c => `<span class="px-2 py-0.5 rounded bg-slate-800 text-slate-200">${escapeHtml(c)}</span>`).join('');
+        document.getElementById('modal-detail-body').innerHTML = `
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 bg-dark-950/60 border border-slate-800 p-4 rounded-xl">
+            <div><span class="text-slate-500 block">Status</span><strong class="text-white">${escapeHtml(j.status)}</strong></div>
+            <div><span class="text-slate-500 block">Stage</span><strong class="text-slate-200">${escapeHtml(j.stage)}</strong></div>
+            <div><span class="text-slate-500 block">Elapsed</span><strong class="text-white">${fmtNum(j.elapsed_seconds, 1)}s</strong></div>
+            <div><span class="text-slate-500 block">Symbols</span><strong class="font-mono text-white">${escapeHtml((j.symbols || ['All 3 Sectors']).join(', '))}</strong></div>
+            <div><span class="text-slate-500 block">Budget</span><strong class="text-white">${j.budget ? '$' + fmtNum(j.budget) : 'Default'}</strong></div>
+            <div><span class="text-slate-500 block">Recommendations</span><strong class="text-emerald-400">${j.recommendations_count}</strong></div>
+          </div>
+          ${j.error ? `<div><span class="text-rose-400 font-semibold block mb-1">Error</span><pre class="bg-rose-950/30 border border-rose-500/30 rounded-xl p-3 text-rose-200 whitespace-pre-wrap">${escapeHtml(j.error)}</pre></div>` : ''}
+          ${j.macro_summary ? `<div><span class="text-emerald-400 font-semibold block mb-1">US Political &amp; Macro Summary</span><div class="bg-dark-950/60 border border-slate-800 rounded-xl p-3">${escapeHtml(j.macro_summary)}</div></div>` : ''}
+          ${catalysts ? `<div><span class="text-slate-400 block mb-1">Political Catalysts</span><div class="flex flex-wrap gap-1.5">${catalysts}</div></div>` : ''}
+        `;
+        document.getElementById('modal-detail-viewer').classList.remove('hidden');
+      } catch (err) {
+        showToast(`Failed to inspect scan job: ${err.message}`, 'error');
+      }
+    }
+
+    function closeDetailModal() {
+      document.getElementById('modal-detail-viewer').classList.add('hidden');
+    }
+
+    // ── Market Research Explorer ───────────────────────────────────────────
+    function quickLookupSymbol(sym) {
+      document.getElementById('research-symbol-input').value = sym;
+      handleMarketLookup();
+    }
+
+    async function handleMarketLookup(e) {
+      if (e) e.preventDefault();
+      const symbol = document.getElementById('research-symbol-input').value.trim().toUpperCase();
+      if (!symbol) return;
+
+      const period = document.getElementById('research-period-input').value;
+      const dte = parseInt(document.getElementById('research-dte-input').value || '7', 10);
+      const optType = document.getElementById('research-option-type').value;
+      const exactExp = document.getElementById('research-exp-input').value.trim();
+
+      const btn = document.getElementById('btn-fetch-market');
+      const quoteEl = document.getElementById('research-quote-container');
+      const optEl = document.getElementById('research-options-container');
+
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Loading...</span>';
+      quoteEl.classList.remove('hidden');
+      quoteEl.innerHTML = '<div class="text-xs text-slate-400 py-4 text-center"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Fetching technical quote &amp; option chain...</div>';
+      optEl.classList.add('hidden');
+
+      try {
+        const expQuery = exactExp ? `&expiration=${encodeURIComponent(exactExp)}` : '';
+        const [qRes, oRes] = await Promise.allSettled([
+          apiFetch(`/api/market/${encodeURIComponent(symbol)}/quote?period=${encodeURIComponent(period)}`),
+          apiFetch(`/api/market/${encodeURIComponent(symbol)}/options?target_dte=${dte}&option_type=${encodeURIComponent(optType)}${expQuery}`),
+        ]);
+
+        if (qRes.status === 'fulfilled') {
+          try {
+            const qData = await readJsonSafe(qRes.value);
+            renderTechnicalQuote(qData.quote);
+          } catch (qErr) {
+            quoteEl.innerHTML = `<div class="text-xs text-rose-400 py-3">Quote lookup failed: ${escapeHtml(qErr.message)}</div>`;
+          }
+        } else {
+          quoteEl.innerHTML = `<div class="text-xs text-rose-400 py-3">Quote lookup failed: ${escapeHtml(qRes.reason?.message || 'Unknown error')}</div>`;
+        }
+
+        if (oRes.status === 'fulfilled') {
+          try {
+            const oData = await readJsonSafe(oRes.value);
+            renderOptionsChain(oData.chain);
+          } catch (oErr) {
+            optEl.classList.remove('hidden');
+            optEl.innerHTML = `<div class="text-xs text-rose-400 py-3">Options chain failed: ${escapeHtml(oErr.message)}</div>`;
+          }
+        } else {
+          optEl.classList.remove('hidden');
+          optEl.innerHTML = `<div class="text-xs text-rose-400 py-3">Options chain failed: ${escapeHtml(oRes.reason?.message || 'Unknown error')}</div>`;
+        }
+      } catch (err) {
+        quoteEl.innerHTML = `<div class="text-xs text-rose-400 py-3">Market lookup error: ${escapeHtml(err.message)}</div>`;
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-magnifying-glass"></i><span>Quote &amp; Chain</span>';
+      }
+    }
+
+    function renderTechnicalQuote(q) {
+      const el = document.getElementById('research-quote-container');
+      el.classList.remove('hidden');
+      const chg = Number(q.change_7d_pct ?? 0);
+      const chgColor = chg >= 0 ? 'text-emerald-400' : 'text-rose-400';
+      const rs = q.relative_strength_7d_pct !== null && q.relative_strength_7d_pct !== undefined
+        ? `${q.relative_strength_7d_pct >= 0 ? '+' : ''}${fmtNum(q.relative_strength_7d_pct)}%`
+        : '—';
+
+      el.innerHTML = `
+        <div class="bg-dark-950/60 border border-slate-800 rounded-xl p-4 space-y-3">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="text-lg font-black text-white">${escapeHtml(q.symbol)}</span>
+              <span class="text-lg font-bold text-emerald-400">$${fmtNum(q.price)}</span>
+              <span class="text-xs font-semibold ${chgColor}">7D: ${chg >= 0 ? '+' : ''}${fmtNum(chg)}%</span>
+              ${q.sector_name ? `<span class="px-2 py-0.5 rounded bg-blue-500/10 text-blue-300 border border-blue-500/30 text-[10px] font-semibold">${escapeHtml(q.sector_name)} (${escapeHtml(q.sector_etf || '')})</span>` : ''}
+              ${q.has_upcoming_earnings ? `<span class="px-2 py-0.5 rounded bg-amber-500/15 text-amber-300 border border-amber-500/30 text-[10px] font-bold">Earnings: ${escapeHtml(q.earnings_date || 'Upcoming')}</span>` : ''}
+            </div>
+            ${q.sector_7d_range ? `<span class="text-[11px] text-slate-400 font-mono">Sector 7D Range: ${escapeHtml(q.sector_7d_range)}</span>` : ''}
+          </div>
+          <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2 text-xs">
+            <div class="bg-dark-900 rounded-lg p-2 border border-slate-800/80"><span class="text-slate-500 block text-[10px]">RSI (14)</span><strong class="text-white">${fmtNum(q.rsi_14, 1, '—')}</strong></div>
+            <div class="bg-dark-900 rounded-lg p-2 border border-slate-800/80"><span class="text-slate-500 block text-[10px]">SMA 20</span><strong class="text-white">$${fmtNum(q.sma_20, 2, '—')}</strong></div>
+            <div class="bg-dark-900 rounded-lg p-2 border border-slate-800/80"><span class="text-slate-500 block text-[10px]">SMA 50</span><strong class="text-white">$${fmtNum(q.sma_50, 2, '—')}</strong></div>
+            <div class="bg-dark-900 rounded-lg p-2 border border-slate-800/80"><span class="text-slate-500 block text-[10px]">ATR (14)</span><strong class="text-white">$${fmtNum(q.atr_14, 2, '—')}</strong></div>
+            <div class="bg-dark-900 rounded-lg p-2 border border-slate-800/80"><span class="text-slate-500 block text-[10px]">Vol Ratio</span><strong class="text-white">${fmtNum(q.volume_ratio, 2, '—')}x</strong></div>
+            <div class="bg-dark-900 rounded-lg p-2 border border-slate-800/80"><span class="text-slate-500 block text-[10px]">IV / Rank</span><strong class="text-white">${fmtNum(q.iv_current, 1, '—')}% (${fmtNum(q.iv_rank, 0, '—')})</strong></div>
+            <div class="bg-dark-900 rounded-lg p-2 border border-slate-800/80"><span class="text-slate-500 block text-[10px]">Rel Strength 7D</span><strong class="text-white">${escapeHtml(rs)}</strong></div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderOptionsChain(chain) {
+      const el = document.getElementById('research-options-container');
+      el.classList.remove('hidden');
+
+      const contracts = [...(chain.calls || []), ...(chain.puts || [])];
+      if (contracts.length === 0) {
+        el.innerHTML = `<div class="text-xs text-slate-400 py-4 text-center">No option contracts returned for ${escapeHtml(chain.symbol)} (${escapeHtml(chain.expiration)}).</div>`;
+        return;
+      }
+
+      // Focus near-the-money contracts around underlying_price (up to 24 rows sorted by strike/type)
+      const spot = Number(chain.underlying_price || 0);
+      const nearMoney = contracts
+        .slice()
+        .sort((a, b) => Math.abs(a.strike - spot) - Math.abs(b.strike - spot))
+        .slice(0, 24)
+        .sort((a, b) => (a.option_type === b.option_type ? a.strike - b.strike : a.option_type.localeCompare(b.option_type)));
+
+      let rows = '';
+      nearMoney.forEach(c => {
+        const ivPct = c.implied_volatility !== null && c.implied_volatility !== undefined
+          ? `${fmtNum(c.implied_volatility > 3 ? c.implied_volatility : c.implied_volatility * 100, 1)}%`
+          : '—';
+        rows += `
+          <tr class="hover:bg-dark-900/70">
+            <td class="py-2 pr-2"><span class="px-1.5 py-0.5 rounded text-[10px] font-bold ${c.option_type === 'CALL' ? 'bg-emerald-500/15 text-emerald-300' : 'bg-rose-500/15 text-rose-300'}">${escapeHtml(c.option_type)}</span></td>
+            <td class="py-2 pr-3 font-mono font-bold text-white">$${fmtNum(c.strike)}</td>
+            <td class="py-2 pr-3 text-slate-300">$${fmtNum(c.bid)} / $${fmtNum(c.ask)}</td>
+            <td class="py-2 pr-3 font-semibold text-emerald-300">$${fmtNum(c.mid)}</td>
+            <td class="py-2 pr-3 text-slate-400">${c.volume ?? '—'} / ${c.open_interest ?? '—'}</td>
+            <td class="py-2 pr-3 text-slate-300">${ivPct}</td>
+            <td class="py-2 pr-3 font-mono text-slate-300">${fmtNum(c.delta, 2, '—')}</td>
+            <td class="py-2 text-right">
+              <button onclick="stageOrderFromChain('${escapeHtml(chain.symbol)}', '${escapeHtml(c.option_type)}', ${Number(c.strike)}, '${escapeHtml(c.expiration)}', ${Number(c.mid)})" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-emerald-600 text-slate-200 hover:text-white text-[11px] transition">
+                Stage Order
+              </button>
+            </td>
+          </tr>
+        `;
+      });
+
+      el.innerHTML = `
+        <div class="space-y-2">
+          <div class="flex items-center justify-between text-xs text-slate-400">
+            <span><strong class="text-white">${escapeHtml(chain.symbol)} Options Chain</strong> • Exp: <span class="font-mono text-slate-200">${escapeHtml(chain.expiration)}</span> (${chain.dte} DTE) • Showing ${nearMoney.length} nearest strikes to $${fmtNum(spot)}</span>
+          </div>
+          <div class="overflow-x-auto border border-slate-800 rounded-xl bg-dark-950/50">
+            <table class="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr class="border-b border-slate-800 text-slate-400 bg-dark-900/60">
+                  <th class="py-2 pl-3 pr-2 font-medium">Type</th>
+                  <th class="py-2 pr-3 font-medium">Strike</th>
+                  <th class="py-2 pr-3 font-medium">Bid / Ask</th>
+                  <th class="py-2 pr-3 font-medium">Mid</th>
+                  <th class="py-2 pr-3 font-medium">Vol / OI</th>
+                  <th class="py-2 pr-3 font-medium">IV</th>
+                  <th class="py-2 pr-3 font-medium">Delta</th>
+                  <th class="py-2 pr-3 font-medium text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-800/70 [&>tr>td:first-child]:pl-3 [&>tr>td:last-child]:pr-3">
+                ${rows}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    function stageOrderFromChain(symbol, optionType, strike, expiration, mid) {
+      openRecordOrderModal();
+      document.getElementById('modal-order-symbol').value = symbol;
+      document.getElementById('modal-order-option-type').value = optionType;
+      document.getElementById('modal-order-structure').value = optionType === 'PUT' ? 'LONG_PUT' : 'LONG_CALL';
+      document.getElementById('modal-order-strike').value = strike;
+      document.getElementById('modal-order-exp').value = expiration;
+      document.getElementById('modal-order-fill').value = mid > 0 ? mid.toFixed(2) : '';
+      toggleShortStrikeField();
+    }
+
+    async function runSectorResearch() {
+      const checked = Array.from(document.querySelectorAll('.sector-check:checked')).map(cb => cb.value);
+      const picks = document.getElementById('sector-picks-count').value;
+      const container = document.getElementById('research-sectors-container');
+      const btn = document.getElementById('btn-run-sectors');
+
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Researching...</span>';
+      container.innerHTML = '<div class="py-8 text-center text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Running sector subagents over news &amp; ETF flows (may take 15-30s)...</div>';
+
+      try {
+        const sectorsParam = checked.length > 0 ? `sectors=${encodeURIComponent(checked.join(','))}&` : '';
+        const res = await apiFetch(`/api/market/sectors?${sectorsParam}picks_per_sector=${picks}`);
+        const data = await readJsonSafe(res);
+        const dossiers = data.sectors || [];
+
+        if (dossiers.length === 0) {
+          container.innerHTML = '<p class="text-slate-400 text-center py-6">No sector dossiers returned.</p>';
+          return;
+        }
+
+        let html = `<div class="grid grid-cols-1 lg:grid-cols-3 gap-4 text-left">`;
+        dossiers.forEach(d => {
+          const chg = d.sector_7d_change_pct;
+          const chgBadge = chg !== null && chg !== undefined
+            ? `<span class="text-xs font-bold ${chg >= 0 ? 'text-emerald-400' : 'text-rose-400'}">${chg >= 0 ? '+' : ''}${fmtNum(chg)}% (7D)</span>`
+            : '';
+
+          const candidatesHtml = (d.top_candidates || []).map(c => `
+            <div class="bg-dark-900 border border-slate-800 rounded-xl p-2.5 flex items-center justify-between gap-2">
+              <div>
+                <div class="flex items-center space-x-2">
+                  <button type="button" onclick="quickLookupSymbol('${escapeHtml(c.symbol)}')" class="font-bold text-white hover:text-emerald-400">${escapeHtml(c.symbol)}</button>
+                  <span class="text-[11px] text-slate-300">$${fmtNum(c.price)}</span>
+                  <span class="px-1.5 py-0.2 rounded bg-emerald-500/15 text-emerald-300 text-[10px] font-mono">Score ${fmtNum(c.score, 1)}</span>
+                </div>
+                <p class="text-[11px] text-slate-400 mt-0.5">${escapeHtml(c.rationale)}</p>
+              </div>
+              <button type="button" onclick="quickLookupSymbol('${escapeHtml(c.symbol)}')" class="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-[10px] text-slate-200 flex-shrink-0">Chain</button>
+            </div>
+          `).join('');
+
+          const headlines = (d.news_7d_headlines || []).slice(0, 3).map(h => `<li>${escapeHtml(h)}</li>`).join('');
+          const upcoming = (d.upcoming_announcements || []).slice(0, 2).map(u => `<li>${escapeHtml(u)}</li>`).join('');
+
+          html += `
+            <div class="bg-dark-950/60 border border-slate-800 rounded-2xl p-4 space-y-3 flex flex-col justify-between">
+              <div class="space-y-3">
+                <div class="flex items-start justify-between gap-2">
+                  <div>
+                    <h4 class="font-bold text-white text-sm">${escapeHtml(d.sector_name)}</h4>
+                    <span class="text-[11px] text-slate-400 font-mono">Benchmark: ${escapeHtml(d.benchmark_etf)} ${d.sector_7d_range ? '• ' + escapeHtml(d.sector_7d_range) : ''}</span>
+                  </div>
+                  ${chgBadge}
+                </div>
+                ${d.sector_commentary ? `<p class="text-[11px] text-slate-300 leading-relaxed">${escapeHtml(d.sector_commentary)}</p>` : ''}
+                <div class="space-y-2">
+                  <span class="text-[10px] uppercase tracking-wider font-bold text-slate-500 block">Top Candidates</span>
+                  ${candidatesHtml || '<p class="text-[11px] text-slate-500">No picks returned.</p>'}
+                </div>
+                ${headlines ? `<div><span class="text-[10px] uppercase tracking-wider font-bold text-slate-500 block mb-1">Recent 7D Headlines</span><ul class="list-disc pl-4 space-y-1 text-[11px] text-slate-400">${headlines}</ul></div>` : ''}
+                ${upcoming ? `<div><span class="text-[10px] uppercase tracking-wider font-bold text-slate-500 block mb-1">Upcoming Catalysts</span><ul class="list-disc pl-4 space-y-1 text-[11px] text-slate-400">${upcoming}</ul></div>` : ''}
+              </div>
+            </div>
+          `;
+        });
+        html += '</div>';
+        container.innerHTML = html;
+      } catch (err) {
+        container.innerHTML = `<div class="text-rose-400 py-4 text-center">Sector research failed: ${escapeHtml(err.message)}</div>`;
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-satellite"></i><span>Run Sector Subagents</span>';
+      }
+    }
+
+    // ── Settings & Notifications ───────────────────────────────────────────
     async function loadSettings() {
       try {
         const res = await apiFetch('/api/settings');
-        const s = await res.json();
+        const s = await readJsonSafe(res);
+
         document.getElementById('set-weekly-budget').value = s.weekly_budget_usd;
         document.getElementById('set-max-trade-cost').value = s.max_cost_per_trade_usd;
         document.getElementById('set-target-gain').value = s.target_gain_percent;
         document.getElementById('set-stop-loss').value = s.stop_loss_percent;
+        document.getElementById('set-strategy-mode').value = s.strategy_mode || 'steady';
+        document.getElementById('set-target-dte').value = s.target_dte || 7;
+        document.getElementById('set-max-candidates').value = s.max_candidates || 5;
         document.getElementById('set-llm-provider').value = s.llm_provider;
         document.getElementById('set-anthropic-model').value = s.anthropic_model;
+        document.getElementById('set-gemini-model').value = s.gemini_model || '';
         document.getElementById('set-notification-channel').value = s.notification_channel;
         document.getElementById('set-scan-universe').value = s.scan_universe;
-        document.getElementById('label-anthropic-status').textContent = `Configured: ${s.anthropic_api_key_masked}`;
+
+        document.getElementById('label-anthropic-status').textContent = s.anthropic_api_key_configured
+          ? `Configured (${s.anthropic_api_key_masked})`
+          : 'Not configured';
+        document.getElementById('label-gemini-status').textContent = s.gemini_api_key_configured
+          ? `Configured (${s.gemini_api_key_masked})`
+          : 'Not configured';
+
+        const badgesEl = document.getElementById('settings-env-badges');
+        const badge = (ok, text) => `<span class="px-2 py-0.5 rounded-full border ${ok ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30' : 'bg-slate-800 text-slate-400 border-slate-700'}">${escapeHtml(text)}: ${ok ? 'Ready' : 'Off'}</span>`;
+        badgesEl.innerHTML = badge(s.auth_enabled, 'API Auth') + badge(s.telegram_configured, 'Telegram') + badge(s.whatsapp_configured, 'WhatsApp');
       } catch (err) {
         console.error('Failed to load settings:', err);
       }
@@ -1133,14 +2216,20 @@
         max_cost_per_trade_usd: parseFloat(document.getElementById('set-max-trade-cost').value),
         target_gain_percent: parseFloat(document.getElementById('set-target-gain').value),
         stop_loss_percent: parseFloat(document.getElementById('set-stop-loss').value),
+        strategy_mode: document.getElementById('set-strategy-mode').value,
+        target_dte: parseInt(document.getElementById('set-target-dte').value, 10),
+        max_candidates: parseInt(document.getElementById('set-max-candidates').value, 10),
         llm_provider: document.getElementById('set-llm-provider').value,
-        anthropic_model: document.getElementById('set-anthropic-model').value,
+        anthropic_model: document.getElementById('set-anthropic-model').value.trim(),
+        gemini_model: document.getElementById('set-gemini-model').value.trim(),
         notification_channel: document.getElementById('set-notification-channel').value,
-        scan_universe: document.getElementById('set-scan-universe').value,
+        scan_universe: document.getElementById('set-scan-universe').value.trim(),
       };
 
-      const keyVal = document.getElementById('set-anthropic-key').value.trim();
-      if (keyVal) payload.anthropic_api_key = keyVal;
+      const antKey = document.getElementById('set-anthropic-key').value.trim();
+      const gemKey = document.getElementById('set-gemini-key').value.trim();
+      if (antKey) payload.anthropic_api_key = antKey;
+      if (gemKey) payload.gemini_api_key = gemKey;
 
       try {
         const res = await apiFetch('/api/settings', {
@@ -1148,17 +2237,53 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
-        const data = await res.json();
+        await readJsonSafe(res);
+        document.getElementById('set-anthropic-key').value = '';
+        document.getElementById('set-gemini-key').value = '';
         const statusEl = document.getElementById('settings-save-status');
         statusEl.classList.remove('hidden');
         setTimeout(() => statusEl.classList.add('hidden'), 4000);
+        showToast('Settings persisted and reloaded.', 'success');
+        loadSettings();
         loadStats();
       } catch (err) {
-        alert(`Failed to save settings: ${err.message}`);
+        showToast(`Failed to save settings: ${err.message}`, 'error');
       }
     }
 
-    // ── Modals Logic ───────────────────────────────────────────────────────
+    async function handleTestNotification(e) {
+      e.preventDefault();
+      const channelVal = document.getElementById('test-notif-channel').value;
+      const msgVal = document.getElementById('test-notif-message').value.trim();
+      const resultEl = document.getElementById('test-notif-result');
+      const btn = document.getElementById('btn-test-notif');
+
+      btn.disabled = true;
+      btn.textContent = 'Sending...';
+      try {
+        const res = await apiFetch('/api/notifications/test', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            channel: channelVal || null,
+            message: msgVal || null,
+          })
+        });
+        const data = await readJsonSafe(res);
+        resultEl.classList.remove('hidden');
+        resultEl.textContent = JSON.stringify(data, null, 2);
+        showToast(`Notification test (${data.channel}) completed.`, 'success');
+      } catch (err) {
+        resultEl.classList.remove('hidden');
+        resultEl.textContent = `Error: ${err.message}`;
+        showToast(`Notification test failed: ${err.message}`, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Send Test Alert';
+      }
+    }
+
+    // ── Order Modals Logic ─────────────────────────────────────────────────
     function toggleShortStrikeField() {
       const struct = document.getElementById('modal-order-structure').value;
       const wrap = document.getElementById('modal-order-short-strike-wrap');
@@ -1181,9 +2306,12 @@
       document.getElementById('modal-record-order').classList.add('hidden');
     }
 
-    function prefillRecordOrderFromRec(r) {
+    function prefillRecordOrderById(recId) {
+      const r = recommendationsById[recId];
+      if (!r) return;
       document.getElementById('modal-order-rec-id').value = r.id;
       document.getElementById('modal-order-symbol').value = r.symbol;
+      document.getElementById('modal-order-option-type').value = r.option_type || 'CALL';
       document.getElementById('modal-order-structure').value = r.structure || 'LONG_CALL';
       document.getElementById('modal-order-strike').value = r.strike_price;
       document.getElementById('modal-order-short-strike').value = r.short_strike_price || '';
@@ -1200,15 +2328,16 @@
       const shortStrikeVal = document.getElementById('modal-order-short-strike').value;
       const payload = {
         symbol: document.getElementById('modal-order-symbol').value.toUpperCase().trim(),
+        option_type: document.getElementById('modal-order-option-type').value,
         structure: document.getElementById('modal-order-structure').value,
         strike_price: parseFloat(document.getElementById('modal-order-strike').value),
         short_strike_price: shortStrikeVal ? parseFloat(shortStrikeVal) : null,
         expiration_date: document.getElementById('modal-order-exp').value,
-        contracts: parseInt(document.getElementById('modal-order-contracts').value),
+        contracts: parseInt(document.getElementById('modal-order-contracts').value, 10),
         fill_price: parseFloat(document.getElementById('modal-order-fill').value),
         tracking_status: document.getElementById('modal-order-tracking').value,
-        notes: document.getElementById('modal-order-notes').value,
-        recommendation_id: recId ? parseInt(recId) : null,
+        notes: document.getElementById('modal-order-notes').value.trim() || null,
+        recommendation_id: recId ? parseInt(recId, 10) : null,
       };
 
       try {
@@ -1217,12 +2346,13 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
-        const data = await res.json();
+        await readJsonSafe(res);
         closeRecordOrderModal();
+        showToast(`Recorded ${payload.symbol} order.`, 'success');
         switchTab('orders');
         loadStats();
       } catch (err) {
-        alert(`Failed to record order: ${err.message}`);
+        showToast(`Failed to record order: ${err.message}`, 'error');
       }
     }
 
@@ -1231,6 +2361,7 @@
       document.getElementById('modal-pnl-order-label').textContent = `Updating Order #${orderId} (${symbol})`;
       document.getElementById('modal-pnl-current-price').value = currentPrice || '';
       document.getElementById('modal-pnl-explicit').value = currentPnl || '';
+      document.getElementById('modal-pnl-notes').value = '';
       document.getElementById('modal-update-pnl').classList.remove('hidden');
     }
 
@@ -1243,11 +2374,11 @@
       const orderId = document.getElementById('modal-pnl-order-id').value;
       const cpVal = document.getElementById('modal-pnl-current-price').value;
       const pnlVal = document.getElementById('modal-pnl-explicit').value;
-      const notes = document.getElementById('modal-pnl-notes').value;
+      const notes = document.getElementById('modal-pnl-notes').value.trim();
 
       const payload = {
-        current_price: cpVal ? parseFloat(cpVal) : null,
-        pnl: pnlVal ? parseFloat(pnlVal) : null,
+        current_price: cpVal !== '' ? parseFloat(cpVal) : null,
+        pnl: pnlVal !== '' ? parseFloat(pnlVal) : null,
         notes: notes || null,
       };
 
@@ -1257,34 +2388,47 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
+        await readJsonSafe(res);
         closeUpdatePnLModal();
+        showToast(`Order #${orderId} PnL updated.`, 'success');
         loadPlacedOrders();
         loadStats();
       } catch (err) {
-        alert(`Failed to update PnL: ${err.message}`);
+        showToast(`Failed to update PnL: ${err.message}`, 'error');
       }
     }
 
-    async function closeOrderPrompt(orderId, symbol) {
-      const exitPriceStr = prompt(`Enter exit fill price per share to CLOSE Order #${orderId} (${symbol}):`);
-      if (!exitPriceStr) return;
+    function openCloseOrderModal(orderId, symbol, suggestedExit) {
+      document.getElementById('modal-close-order-id').value = orderId;
+      document.getElementById('modal-close-order-label').textContent = `Closing Order #${orderId} (${symbol})`;
+      document.getElementById('modal-close-exit-price').value = suggestedExit ? Number(suggestedExit).toFixed(2) : '';
+      document.getElementById('modal-close-notes').value = '';
+      document.getElementById('modal-close-order').classList.remove('hidden');
+    }
 
-      const exitPrice = parseFloat(exitPriceStr);
-      if (isNaN(exitPrice)) {
-        alert('Invalid exit price');
-        return;
-      }
+    function closeCloseOrderModal() {
+      document.getElementById('modal-close-order').classList.add('hidden');
+    }
+
+    async function handleCloseOrderSubmit(e) {
+      e.preventDefault();
+      const orderId = document.getElementById('modal-close-order-id').value;
+      const exitPrice = parseFloat(document.getElementById('modal-close-exit-price').value);
+      const notes = document.getElementById('modal-close-notes').value.trim() || 'Closed via Web Terminal';
 
       try {
         const res = await apiFetch(`/api/orders/${orderId}/close`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ exit_price: exitPrice, notes: 'Closed via Web UX' })
+          body: JSON.stringify({ exit_price: exitPrice, notes })
         });
+        await readJsonSafe(res);
+        closeCloseOrderModal();
+        showToast(`Order #${orderId} closed at $${exitPrice.toFixed(2)}.`, 'success');
         loadPlacedOrders();
         loadStats();
       } catch (err) {
-        alert(`Error closing order: ${err.message}`);
+        showToast(`Error closing order: ${err.message}`, 'error');
       }
     }
 
@@ -1292,7 +2436,7 @@
     async function openGenerateModal() {
       try {
         const res = await apiFetch('/api/settings');
-        const s = await res.json();
+        const s = await readJsonSafe(res);
         document.getElementById('scan-budget-input').value = s.weekly_budget_usd || 500;
         document.getElementById('scan-max-cost-input').value = s.max_cost_per_trade_usd || s.weekly_budget_usd || 500;
       } catch (err) {
@@ -1315,6 +2459,7 @@
       const stage = document.getElementById('scan-banner-stage');
       const elapsed = document.getElementById('scan-banner-elapsed');
       const macroEl = document.getElementById('scan-banner-macro');
+      const catEl = document.getElementById('scan-banner-catalysts');
 
       if (!job || job.status === 'none') {
         banner.classList.add('hidden');
@@ -1322,27 +2467,35 @@
       }
 
       banner.classList.remove('hidden');
-      elapsed.textContent = `${(job.elapsed_seconds || 0).toFixed(1)}s`;
+      elapsed.textContent = `${fmtNum(job.elapsed_seconds, 1)}s`;
       stage.textContent = job.stage || '';
 
       if (job.status === 'running') {
         banner.className = 'rounded-2xl p-4 border text-sm space-y-2 bg-dark-900 border-emerald-500/40';
-        header.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-emerald-400"></i><span>Pipeline Scan Running (${job.symbols ? job.symbols.join(', ') : 'All 3 Sectors'})</span>`;
+        header.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-emerald-400"></i><span>Pipeline Scan Running (${escapeHtml(job.symbols ? job.symbols.join(', ') : 'All 3 Sectors')})</span>`;
         macroEl.classList.add('hidden');
+        catEl.classList.add('hidden');
       } else if (job.status === 'completed') {
         banner.className = 'rounded-2xl p-4 border text-sm space-y-2 bg-emerald-950/30 border-emerald-500/40 text-emerald-100';
         header.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400"></i><span>Scan Complete — ${job.recommendations_count} Approved Recommendation${job.recommendations_count !== 1 ? 's' : ''}</span>`;
         if (job.macro_summary) {
           macroEl.classList.remove('hidden');
-          macroEl.innerHTML = `<strong class="text-emerald-300">US Political & Macro Brief:</strong> ${job.macro_summary}`;
+          macroEl.innerHTML = `<strong class="text-emerald-300">US Political &amp; Macro Brief:</strong> ${escapeHtml(job.macro_summary)}`;
         } else {
           macroEl.classList.add('hidden');
         }
+        if (job.political_catalysts && job.political_catalysts.length > 0) {
+          catEl.classList.remove('hidden');
+          catEl.innerHTML = job.political_catalysts.map(c => `<span class="px-2 py-0.5 rounded bg-slate-800 text-[11px] text-slate-200">${escapeHtml(c)}</span>`).join('');
+        } else {
+          catEl.classList.add('hidden');
+        }
       } else if (job.status === 'failed') {
         banner.className = 'rounded-2xl p-4 border text-sm space-y-2 bg-rose-950/30 border-rose-500/40 text-rose-200';
-        header.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-rose-400"></i><span>Pipeline Scan Failed</span>`;
+        header.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-rose-400"></i><span>Pipeline Scan Failed</span>';
         stage.textContent = job.error || 'Unknown error occurred';
         macroEl.classList.add('hidden');
+        catEl.classList.add('hidden');
       }
     }
 
@@ -1350,7 +2503,7 @@
       if (scanPollTimer) clearInterval(scanPollTimer);
       scanPollTimer = setInterval(async () => {
         try {
-          const res = await apiFetch(`/api/scan/status/${jobId}`);
+          const res = await apiFetch(`/api/scan/status/${encodeURIComponent(jobId)}`);
           if (!res.ok) {
             clearInterval(scanPollTimer);
             scanPollTimer = null;
@@ -1362,6 +2515,7 @@
             clearInterval(scanPollTimer);
             scanPollTimer = null;
             loadRecommendations();
+            loadScanJobs();
             loadStats();
           }
         } catch (err) {
@@ -1373,7 +2527,7 @@
     async function checkLatestScanJob() {
       try {
         const res = await apiFetch('/api/scan/latest');
-        const job = await res.json();
+        const job = await readJsonSafe(res);
         if (job && job.status === 'running') {
           renderScanBanner(job);
           pollScanJob(job.job_id);
@@ -1406,7 +2560,7 @@
             notify: notify,
           })
         });
-        const data = await res.json();
+        const data = await readJsonSafe(res);
         closeGenerateModal();
         switchTab('recommendations');
         renderScanBanner({
@@ -1416,8 +2570,9 @@
           elapsed_seconds: 0.0,
         });
         pollScanJob(data.job_id);
+        loadScanJobs();
       } catch (err) {
-        alert(`Failed to launch scan: ${err.message}`);
+        showToast(`Failed to launch scan: ${err.message}`, 'error');
       } finally {
         btn.disabled = false;
         btn.innerHTML = '<i class="fa-solid fa-play"></i><span>Run Pipeline Scan</span>';
