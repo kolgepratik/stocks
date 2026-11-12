@@ -427,3 +427,136 @@ def test_migrate_sqlite_data_idempotent(tmp_path):
 
     second = migrate_data(src_url, dst_url)
     assert second == {"trade_recommendations": 0, "execution_logs": 0, "placed_orders": 0}
+
+
+def test_options_math_returns_native_python_numbers_and_msgpack_serializable():
+    import dataclasses
+
+    import numpy as np
+    import ormsgpack
+
+    from src.tools.options_math import (
+        black_scholes_greeks,
+        breakeven,
+        pnl_at_expiry,
+        score_contract,
+        size_position,
+    )
+
+    greeks = black_scholes_greeks(
+        np.float64(173.73),
+        np.float64(175.0),
+        7 / 365,
+        0.045,
+        np.float64(0.46),
+        "CALL",
+    )
+    be = breakeven(np.float64(175.0), np.float64(3.25), "CALL")
+    curve = pnl_at_expiry(
+        "CALL",
+        np.float64(175.0),
+        np.float64(3.25),
+        underlying_price=np.float64(173.73),
+    )
+    pos = size_position(np.float64(500.0), 100.0, np.float64(3.25))
+    scored = score_contract(
+        contract_mid=np.float64(3.25),
+        strike=np.float64(175.0),
+        dte=np.int64(7),  # type: ignore[arg-type]
+        underlying_price=np.float64(173.73),
+        option_type="CALL",
+        contract_symbol="NVDA_C_175",
+        iv_override=np.float64(0.46),
+    )
+
+    assert type(be) is float
+    assert scored is not None
+    payload = {
+        "greeks": dataclasses.asdict(greeks),
+        "breakeven": be,
+        "curve": dataclasses.asdict(curve),
+        "position": dataclasses.asdict(pos),
+        "scored": dataclasses.asdict(scored),
+    }
+
+    def _assert_no_numpy(obj):
+        assert not isinstance(obj, np.generic)
+        if isinstance(obj, dict):
+            for v in obj.values():
+                _assert_no_numpy(v)
+        elif isinstance(obj, (list, tuple)):
+            for v in obj:
+                _assert_no_numpy(v)
+
+    _assert_no_numpy(payload)
+    packed = ormsgpack.packb(payload)
+    assert isinstance(packed, bytes)
+
+
+def test_langgraph_checkpointer_handles_numpy_scalars():
+    import numpy as np
+
+    from src.workflow.graph import build_graph
+
+    def fake_scanner(_state):
+        return {
+            "scanner_proposals": [
+                {"symbol": "NVDA", "score": np.float64(9.1), "rank": np.int64(1)}
+            ],
+            "macro_political_context": {"risk_on": np.bool_(True)},
+        }
+
+    def fake_structurer(_state):
+        return {
+            "structured_trades": [
+                {
+                    "symbol": "NVDA",
+                    "delta": np.float64(0.44),
+                    "levels": np.array([170.0, 175.0]),
+                }
+            ]
+        }
+
+    def fake_risk(_state):
+        return {
+            "risk_reviews": [{"symbol": "NVDA", "approved": np.bool_(True)}],
+            "final_recommendations": [
+                {"symbol": "NVDA", "entry_price": np.float64(3.25)}
+            ],
+            "review_feedback": None,
+        }
+
+    def fake_persistence(_state):
+        return {"saved_recommendation_ids": [np.int64(42)]}
+
+    with (
+        patch("src.workflow.graph.scanner_node", fake_scanner),
+        patch("src.workflow.graph.profitability_node", fake_structurer),
+        patch("src.workflow.graph.risk_node", fake_risk),
+        patch("src.workflow.graph.persistence_node", fake_persistence),
+    ):
+        compiled = build_graph(use_checkpointer=True)
+        out = compiled.invoke(
+            {
+                "target_symbols": ["NVDA"],
+                "weekly_budget_usd": 500.0,
+                "max_cost_per_trade_usd": 500.0,
+                "scanner_proposals": [],
+                "structured_trades": [],
+                "risk_reviews": [],
+                "final_recommendations": [],
+                "iteration_count": 0,
+                "review_feedback": None,
+                "workflow_error": None,
+                "run_id": "test-np-msgpack",
+                "notify": False,
+            },
+            config={"configurable": {"thread_id": "test-np-msgpack"}},
+        )
+
+    assert type(out["scanner_proposals"][0]["score"]) is float
+    assert type(out["scanner_proposals"][0]["rank"]) is int
+    assert type(out["macro_political_context"]["risk_on"]) is bool
+    assert out["structured_trades"][0]["levels"] == [170.0, 175.0]
+    assert out["saved_recommendation_ids"] == [42]
+    assert type(out["saved_recommendation_ids"][0]) is int

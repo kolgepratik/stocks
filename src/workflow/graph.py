@@ -27,8 +27,10 @@ Conditional routing is handled by `should_revise()` after `risk_node`.
 from __future__ import annotations
 
 import uuid
-from typing import Literal
+from functools import wraps
+from typing import Any, Callable, Literal
 
+import numpy as np
 from langchain_core.runnables import RunnableConfig
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import END, START, StateGraph
@@ -179,6 +181,37 @@ def should_revise(state: AgentTradingState) -> Literal["structurer_node", "persi
     return "persistence_node"
 
 
+# ── Msgpack Safety Helpers ─────────────────────────────────────────────────────
+
+def _sanitize_for_msgpack(value: Any) -> Any:
+    """Recursively convert NumPy scalars/arrays to native Python types for MemorySaver."""
+    if isinstance(value, np.generic):
+        return value.item()
+    if isinstance(value, np.ndarray):
+        return [_sanitize_for_msgpack(item) for item in value.tolist()]
+    if isinstance(value, dict):
+        return {
+            _sanitize_for_msgpack(k): _sanitize_for_msgpack(v)
+            for k, v in value.items()
+        }
+    if isinstance(value, list):
+        return [_sanitize_for_msgpack(item) for item in value]
+    if isinstance(value, tuple):
+        return tuple(_sanitize_for_msgpack(item) for item in value)
+    return value
+
+
+def _wrap_node(
+    node_fn: Callable[[AgentTradingState], dict[str, Any]],
+) -> Callable[[AgentTradingState], dict[str, Any]]:
+    """Wrap a LangGraph node so returned state diffs are msgpack-serializable."""
+    @wraps(node_fn)
+    def wrapped(state: AgentTradingState) -> dict[str, Any]:
+        return _sanitize_for_msgpack(node_fn(state))
+
+    return wrapped
+
+
 # ── Graph Builder ──────────────────────────────────────────────────────────────
 
 def build_graph(use_checkpointer: bool = True) -> StateGraph:
@@ -192,11 +225,11 @@ def build_graph(use_checkpointer: bool = True) -> StateGraph:
     """
     graph = StateGraph(AgentTradingState)
 
-    # Register nodes
-    graph.add_node("scanner_node", scanner_node)
-    graph.add_node("structurer_node", profitability_node)
-    graph.add_node("risk_node", risk_node)
-    graph.add_node("persistence_node", persistence_node)
+    # Register nodes wrapped to sanitize NumPy scalars before MemorySaver checkpoints state
+    graph.add_node("scanner_node", _wrap_node(scanner_node))
+    graph.add_node("structurer_node", _wrap_node(profitability_node))
+    graph.add_node("risk_node", _wrap_node(risk_node))
+    graph.add_node("persistence_node", _wrap_node(persistence_node))
 
     # Linear edges
     graph.add_edge(START, "scanner_node")

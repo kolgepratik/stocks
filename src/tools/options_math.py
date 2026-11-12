@@ -75,6 +75,11 @@ class ScoredContract:
 _RISK_FREE_RATE = 0.045   # approximate current US risk-free rate
 
 
+def _round_float(val: object, ndigits: int) -> float:
+    """Convert numeric scalars (including NumPy float64) to rounded native Python float."""
+    return float(round(float(val), ndigits))  # type: ignore[arg-type]
+
+
 def black_scholes_greeks(
     S: float,            # underlying spot price
     K: float,            # strike price
@@ -121,13 +126,13 @@ def black_scholes_greeks(
     rho = rho_call if option_type == "CALL" else rho_put
 
     return GreeksResult(
-        delta=round(delta, 4),
-        gamma=round(gamma, 6),
-        theta=round(theta, 4),
-        vega=round(vega, 4),
-        rho=round(rho, 4),
-        theoretical_price=round(price, 4),
-        implied_volatility=round(sigma * 100, 2),
+        delta=_round_float(delta, 4),
+        gamma=_round_float(gamma, 6),
+        theta=_round_float(theta, 4),
+        vega=_round_float(vega, 4),
+        rho=_round_float(rho, 4),
+        theoretical_price=_round_float(price, 4),
+        implied_volatility=_round_float(sigma * 100, 2),
     )
 
 
@@ -192,8 +197,8 @@ def breakeven(strike: float, premium: float, option_type: Literal["CALL", "PUT"]
     Breakeven_put  = K - Premium
     """
     if option_type == "CALL":
-        return round(strike + premium, 4)
-    return round(strike - premium, 4)
+        return _round_float(strike + premium, 4)
+    return _round_float(strike - premium, 4)
 
 
 # ── PnL Simulation ─────────────────────────────────────────────────────────────
@@ -229,8 +234,8 @@ def pnl_at_expiry(
         else:
             intrinsic = max(strike - s, 0.0)
         pnl_per_share = intrinsic - premium_paid
-        pnl_dollar = round(pnl_per_share * 100, 2)
-        pnl_pct = round((pnl_per_share / premium_paid) * 100, 1) if premium_paid else 0.0
+        pnl_dollar = _round_float(pnl_per_share * 100, 2)
+        pnl_pct = _round_float((pnl_per_share / premium_paid) * 100, 1) if premium_paid else 0.0
         pnl_vals.append(pnl_dollar)
         pnl_pct_vals.append(pnl_pct)
 
@@ -244,16 +249,16 @@ def pnl_at_expiry(
     target_exit_spot: float | None = None
     for s, p in zip(spots, pnl_pct_vals):
         if p >= target_pnl_pct:
-            target_exit_spot = round(s, 2)
+            target_exit_spot = _round_float(s, 2)
             break
 
     return PnLCurve(
-        spot_prices=[round(s, 4) for s in spots],
+        spot_prices=[_round_float(s, 4) for s in spots],
         pnl_values=pnl_vals,
         pnl_pct_values=pnl_pct_vals,
         breakeven_price=be,
-        max_profit=round(max_profit, 2),
-        max_loss=round(max_loss, 2),
+        max_profit=_round_float(max_profit, 2),
+        max_loss=_round_float(max_loss, 2),
         target_exit_spot=target_exit_spot,
     )
 
@@ -282,11 +287,11 @@ def size_position(
         )
     contracts = int(max_cost_allowed / cost_per_contract)
     actual_cost = contracts * cost_per_contract
-    actual_pct = round((actual_cost / portfolio_value) * 100, 2) if portfolio_value else 0.0
+    actual_pct = _round_float((actual_cost / portfolio_value) * 100, 2) if portfolio_value else 0.0
     return PositionSize(
         max_contracts=contracts,
-        max_cost=round(actual_cost, 2),
-        cost_per_contract=round(cost_per_contract, 2),
+        max_cost=_round_float(actual_cost, 2),
+        cost_per_contract=_round_float(cost_per_contract, 2),
         portfolio_risk_pct=actual_pct,
     )
 
@@ -329,7 +334,7 @@ def score_contract(
     delta_abs = abs(greeks.delta)
     delta_score = 2.0 - abs(delta_abs - 0.45) * 10   # peaks at delta=0.45
     be_penalty = max(0, (be_pct - 5.0) * 0.2)        # penalise >5% move needed
-    score = round(delta_score - be_penalty, 3)
+    score = _round_float(delta_score - be_penalty, 3)
 
     reasons: list[str] = []
     if 0.35 <= delta_abs <= 0.55:
@@ -341,13 +346,13 @@ def score_contract(
     return ScoredContract(
         contract_symbol=contract_symbol,
         option_type=option_type,
-        strike=strike,
+        strike=float(strike),
         expiration=expiration_str,
-        dte=dte,
-        mid=contract_mid,
+        dte=int(dte),
+        mid=float(contract_mid),
         greeks=greeks,
         breakeven=be,
-        breakeven_pct_move=round(be_pct, 2),
+        breakeven_pct_move=_round_float(be_pct, 2),
         score=score,
         rationale="; ".join(reasons),
     )
