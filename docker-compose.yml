@@ -1,0 +1,36 @@
+services:
+  web:
+    build: .
+    container_name: antigravity_options_web
+    env_file: .env
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./.env:/app/.env
+    restart: unless-stopped
+    command: ["python", "scripts/start_web.py", "--host", "0.0.0.0", "--port", "8000"]
+
+  trading-bot:
+    build: .
+    container_name: antigravity_trading_bot
+    env_file: .env
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./.env:/app/.env
+    restart: unless-stopped
+    command: ["python", "scripts/start_bot.py"]
+
+  weekly-scan:
+    build: .
+    container_name: antigravity_weekly_scan
+    env_file: .env
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./.env:/app/.env
+    profiles:
+      - scan
+    command: ["python", "scripts/run_weekly_scan.py"]
